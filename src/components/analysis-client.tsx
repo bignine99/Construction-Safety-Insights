@@ -25,14 +25,7 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
 
   return (
     <div className="container mx-auto max-w-5xl py-8 md:py-12">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">AI 사고 분석</h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          사고 설명 데이터를 기반으로 AI가 핵심 테마를 분석하고 예방 대책을 제안합니다.
-        </p>
-      </div>
-
-      <div className="mt-8 flex justify-center">
+      <div className="flex justify-center">
         <Button onClick={handleAnalysis} disabled={loading} size="lg">
           {loading ? (
             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
