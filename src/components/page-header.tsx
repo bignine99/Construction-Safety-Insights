@@ -2,35 +2,42 @@
 
 import Image from 'next/image';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { Card } from '@/components/ui/card';
 
 export default function PageHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
-    <div className="flex items-start justify-between">
-      <div className="flex items-center gap-4">
-        <SidebarTrigger className="md:hidden"/>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{title}</h1>
-          <p className="mt-1 text-muted-foreground">
-            {subtitle}
-          </p>
+    <div className="flex w-full items-center gap-4">
+      <SidebarTrigger className="md:hidden" />
+      <Card className="flex-1">
+        <div className="grid grid-cols-1 items-center gap-4 p-4 md:grid-cols-[1fr_auto_1fr]">
+          <div className="hidden justify-start md:flex">
+            <Image
+              src="https://cnu.nhi.go.kr/upload/bureau/logo/20240306/F20240306164930230.png"
+              alt="Chungnam National University Logo"
+              width={180}
+              height={45}
+              className="h-10 w-auto object-contain"
+            />
+          </div>
+          <div className="text-center">
+            <h1 className="text-xl font-bold tracking-tight md:text-2xl">
+              {title}
+            </h1>
+            <p className="mt-1 text-xs text-muted-foreground md:text-sm">
+              {subtitle}
+            </p>
+          </div>
+          <div className="hidden justify-end md:flex">
+            <Image
+              src="https://i.postimg.cc/x80mN6S0/NN01.png"
+              alt="Ninetynine Logo"
+              width={150}
+              height={50}
+              className="h-10 w-auto object-contain"
+            />
+          </div>
         </div>
-      </div>
-      <div className="hidden items-center space-x-4 md:flex">
-        <Image
-          src="https://placehold.co/180x40"
-          alt="Chungnam National University Logo"
-          width={180}
-          height={40}
-          data-ai-hint="university logo"
-        />
-        <Image
-          src="https://placehold.co/150x40"
-          alt="Ninetynine Logo"
-          width={150}
-          height={40}
-          data-ai-hint="company logo"
-        />
-      </div>
+      </Card>
     </div>
   );
 }

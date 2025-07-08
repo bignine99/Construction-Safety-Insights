@@ -61,7 +61,7 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
           <main className="flex flex-1 flex-col gap-6 p-4 md:p-6">
             <PageHeader 
               title="안전사고 분석 대시보드"
-              subtitle="건설 안전 데이터를 분석하여 추세 파악 및 미래 사고 예방"
+              subtitle="WBS-RBS 기반 위험정보 분석 시스템"
             />
             <DashboardMetrics incidents={filteredIncidents} />
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">

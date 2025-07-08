@@ -67,11 +67,10 @@ export default function FilterSidebar({
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="p-4">
         <Image
-          src="https://placehold.co/200x50"
-          alt="SMART Construction"
+          src="https://www.littfair.kr/data/file/company/thumb-2948943842_5ygD9xmX_84b1fae97afdad49e267f016bc03ef32e2791c0b_1400x568.png"
+          alt="SMART 스마트건설사업단"
           width={180}
-          height={40}
-          data-ai-hint="construction logo"
+          height={73}
         />
       </div>
       <nav className="flex flex-col gap-1 px-4">
