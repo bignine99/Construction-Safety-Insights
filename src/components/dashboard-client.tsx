@@ -88,5 +88,3 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
     </SidebarProvider>
   );
 }
-
-    
