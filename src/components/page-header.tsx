@@ -9,8 +9,8 @@ export default function PageHeader({ title, subtitle }: { title: string; subtitl
     <div className="flex w-full items-center gap-4">
       <SidebarTrigger className="md:hidden" />
       <Card className="flex-1">
-        <div className="grid grid-cols-1 items-center gap-4 p-4 md:grid-cols-[1fr_auto_1fr]">
-          <div className="hidden justify-start md:flex">
+        <div className="flex items-center justify-between p-4">
+          <div className="hidden flex-1 justify-start md:flex">
             <Image
               src="https://cnu.nhi.go.kr/upload/bureau/logo/20240306/F20240306164930230.png"
               alt="Chungnam National University Logo"
@@ -27,7 +27,7 @@ export default function PageHeader({ title, subtitle }: { title: string; subtitl
               {subtitle}
             </p>
           </div>
-          <div className="hidden justify-end md:flex">
+          <div className="hidden flex-1 justify-end md:flex">
             <Image
               src="https://i.postimg.cc/x80mN6S0/NN01.png"
               alt="Ninetynine Logo"
