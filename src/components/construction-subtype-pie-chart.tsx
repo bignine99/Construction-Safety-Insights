@@ -51,7 +51,7 @@ export default function ConstructionSubtypePieChart({ incidents }: ConstructionS
   return (
     <Card>
       <CardHeader>
-        <CardTitle>공종 중분류별 사고 비율</CardTitle>
+        <CardTitle>중공종별 사고 비율</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px] w-full">

@@ -28,7 +28,7 @@ export default function ObjectSubtypeCountChart({ incidents }: ObjectSubtypeCoun
   return (
     <Card>
       <CardHeader>
-        <CardTitle>사고객체 중분류별 사고건수</CardTitle>
+        <CardTitle>객체별 사고 건수</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--chart-2))' } }} className="h-[350px] w-full">

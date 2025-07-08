@@ -12,21 +12,23 @@ interface MonthlyAccidentsChartProps {
 
 export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsChartProps) {
   const chartData = useMemo(() => {
-    const dataByMonth = incidents.reduce((acc, incident) => {
-      const month = incident.dateTime.substring(0, 7); // YYYY-MM
-      acc[month] = (acc[month] || 0) + 1;
+    const dataByYear = incidents.reduce((acc, incident) => {
+      const year = new Date(incident.dateTime).getFullYear().toString();
+      if (!acc[year]) {
+        acc[year] = { year, '사고 건수': 0 };
+      }
+      acc[year]['사고 건수']++;
       return acc;
-    }, {} as Record<string, number>);
-
-    return Object.entries(dataByMonth)
-      .map(([month, count]) => ({ name: month, '사고 건수': count }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+    }, {} as Record<string, { year: string; '사고 건수': number }>);
+    
+    return Object.values(dataByYear)
+      .sort((a, b) => a.year.localeCompare(b.year));
   }, [incidents]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>월별 사고 발생 현황</CardTitle>
+        <CardTitle>년도별 사고 발생 현황</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }} className="h-[350px] w-full">
@@ -36,7 +38,7 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
               margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
             >
               <XAxis 
-                dataKey="name" 
+                dataKey="year" 
                 tickLine={false} 
                 axisLine={false} 
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
