@@ -6,8 +6,9 @@ import FilterSidebar from '@/components/filter-sidebar';
 import DashboardMetrics from '@/components/dashboard-metrics';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import PageHeader from './page-header';
-import AnnualAccidentsChart from './annual-accidents-chart';
-import AccidentTypeChart from './accident-type-chart';
+import MonthlyAccidentsChart from './monthly-accidents-chart';
+import ConstructionSubtypePieChart from './construction-subtype-pie-chart';
+import { Card } from './ui/card';
 
 export default function DashboardClient({ incidents }: { incidents: Incident[] }) {
   const [filters, setFilters] = useState({
@@ -67,9 +68,14 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
               subtitle="건설 안전 데이터를 분석하여 추세 파악 및 미래 사고 예방"
             />
             <DashboardMetrics incidents={filteredIncidents} />
-            <div className="grid grid-cols-1 gap-6">
-              <AnnualAccidentsChart incidents={filteredIncidents} />
-              <AccidentTypeChart incidents={filteredIncidents} />
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+              <MonthlyAccidentsChart incidents={filteredIncidents} />
+              <ConstructionSubtypePieChart incidents={filteredIncidents} />
+              {Array.from({ length: 6 }).map((_, index) => (
+                <Card key={index} className="flex min-h-[426px] items-center justify-center p-6">
+                  <p className="text-muted-foreground">차트 영역 {index + 3}</p>
+                </Card>
+              ))}
             </div>
           </main>
         </SidebarInset>
