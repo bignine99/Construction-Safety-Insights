@@ -69,8 +69,8 @@ export default function FilterSidebar({
         <Image
           src="https://www.littfair.kr/data/file/company/thumb-2948943842_5ygD9xmX_84b1fae97afdad49e267f016bc03ef32e2791c0b_1400x568.png"
           alt="SMART 스마트건설사업단"
-          width={270}
-          height={110}
+          width={400}
+          height={163}
         />
       </div>
       <nav className="flex flex-col gap-1 px-4">
