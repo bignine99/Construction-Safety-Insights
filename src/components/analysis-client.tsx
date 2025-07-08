@@ -17,7 +17,7 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
   const handleAnalysis = async () => {
     setLoading(true);
     setAnalysisResult(null);
-    const descriptions = incidents.map(i => i.causeSpecific);
+    const descriptions = incidents.map(i => i.causeDetail);
     const result = await getAiAnalysis(descriptions);
     setAnalysisResult(result);
     setLoading(false);
@@ -96,3 +96,5 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
     </div>
   );
 }
+
+    

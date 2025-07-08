@@ -14,7 +14,7 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
   const [filters, setFilters] = useState({
     projectType: 'all',
     causeMain: 'all',
-    projectCost: [0, 30000000] as [number, number],
+    projectCost: 'all',
   });
 
   const filteredIncidents = useMemo(() => {
@@ -22,8 +22,7 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
       const { projectType, causeMain, projectCost } = filters;
       const projectTypeMatch = projectType === 'all' || incident.projectType === projectType;
       const causeMainMatch = causeMain === 'all' || incident.causeMain === causeMain;
-      const projectCostMatch =
-        incident.projectCost >= projectCost[0] && incident.projectCost <= projectCost[1];
+      const projectCostMatch = projectCost === 'all' || incident.projectCost === projectCost;
       return projectTypeMatch && causeMainMatch && projectCostMatch;
     });
   }, [filters, incidents]);
@@ -33,10 +32,18 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
     [incidents]
   );
   const uniqueCauses = useMemo(
-    () => ['all', ...Array.from(new Set(incidents.map(i => i.causeMain)))],
+    () => ['all', ...Array.from(new Set(incidents.map(i => i.causeMain).filter(Boolean)))],
     [incidents]
   );
-  const maxCost = useMemo(() => Math.max(...incidents.map(i => i.projectCost), 30000000), [incidents]);
+  const uniqueProjectCosts = useMemo(() => {
+    const costs = new Set(incidents.map(i => i.projectCost));
+    const sortedCosts = Array.from(costs).sort((a, b) => {
+        if (a.includes('~')) return 1;
+        if (b.includes('~')) return -1;
+        return parseFloat(a.replace(/,/g, '')) - parseFloat(b.replace(/,/g, ''));
+    });
+    return ['all', ...sortedCosts];
+  }, [incidents]);
 
   return (
     <SidebarProvider>
@@ -47,7 +54,7 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
             onFilterChange={setFilters}
             projectTypes={uniqueProjectTypes}
             causes={uniqueCauses}
-            maxCost={maxCost}
+            projectCosts={uniqueProjectCosts}
           />
         </Sidebar>
         <SidebarInset>
@@ -81,3 +88,5 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
     </SidebarProvider>
   );
 }
+
+    

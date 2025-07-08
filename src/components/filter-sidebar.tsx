@@ -7,7 +7,6 @@ import { LayoutDashboard, BrainCircuit } from 'lucide-react';
 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
@@ -16,12 +15,12 @@ interface FilterSidebarProps {
   filters: {
     projectType: string;
     causeMain: string;
-    projectCost: [number, number];
+    projectCost: string;
   };
   onFilterChange: (filters: any) => void;
   projectTypes: string[];
   causes: string[];
-  maxCost: number;
+  projectCosts: string[];
 }
 
 export default function FilterSidebar({
@@ -29,25 +28,16 @@ export default function FilterSidebar({
   onFilterChange,
   projectTypes,
   causes,
-  maxCost,
+  projectCosts,
 }: FilterSidebarProps) {
   const pathname = usePathname();
-  const handleSliderChange = (value: number[]) => {
-    onFilterChange({ ...filters, projectCost: value });
-  };
 
   const handleReset = () => {
     onFilterChange({
       projectType: 'all',
       causeMain: 'all',
-      projectCost: [0, maxCost],
+      projectCost: 'all',
     });
-  };
-
-  const formatCost = (cost: number) => {
-    if (cost >= 100000000) return `${(cost / 100000000).toFixed(1)}억`;
-    if (cost >= 10000) return `${Math.round(cost / 10000)}만`;
-    return cost;
   };
 
   return (
@@ -130,24 +120,28 @@ export default function FilterSidebar({
           </div>
           <div>
             <Label htmlFor="projectCost" className="text-sm font-medium">
-              공사비 규모 (원)
+              공사비 규모 (억원 미만)
             </Label>
-            <Slider
-              id="projectCost"
-              min={0}
-              max={maxCost}
-              step={100000}
+            <Select
               value={filters.projectCost}
-              onValueChange={handleSliderChange}
-              className="mt-3"
-            />
-            <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-              <span>{formatCost(filters.projectCost[0])}</span>
-              <span>{formatCost(filters.projectCost[1])}</span>
-            </div>
+              onValueChange={value => onFilterChange({ ...filters, projectCost: value })}
+            >
+              <SelectTrigger id="projectCost" className="mt-1">
+                <SelectValue placeholder="모두" />
+              </SelectTrigger>
+              <SelectContent>
+                {projectCosts.map(cost => (
+                  <SelectItem key={cost} value={cost}>
+                    {cost === 'all' ? '모두' : cost}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+    

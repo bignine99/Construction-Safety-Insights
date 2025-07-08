@@ -10,13 +10,20 @@ export default async function AnalysisPage() {
   const incidents = await getIncidents();
   
   const uniqueProjectTypes = ['all', ...Array.from(new Set(incidents.map(i => i.projectType)))];
-  const uniqueCauses = ['all', ...Array.from(new Set(incidents.map(i => i.causeMain)))];
-  const maxCost = Math.max(...incidents.map(i => i.projectCost), 30000000);
+  const uniqueCauses = ['all', ...Array.from(new Set(incidents.map(i => i.causeMain).filter(Boolean)))];
+  
+  const costs = new Set(incidents.map(i => i.projectCost));
+  const sortedCosts = Array.from(costs).sort((a, b) => {
+      if (a.includes('~')) return 1;
+      if (b.includes('~')) return -1;
+      return parseFloat(a.replace(/,/g, '')) - parseFloat(b.replace(/,/g, ''));
+  });
+  const uniqueProjectCosts = ['all', ...sortedCosts];
   
   const filters = {
     projectType: 'all',
     causeMain: 'all',
-    projectCost: [0, maxCost] as [number, number],
+    projectCost: 'all',
   };
 
   return (
@@ -28,7 +35,7 @@ export default async function AnalysisPage() {
             onFilterChange={() => {}} // No-op for this page
             projectTypes={uniqueProjectTypes}
             causes={uniqueCauses}
-            maxCost={maxCost}
+            projectCosts={uniqueProjectCosts}
           />
         </Sidebar>
         <SidebarInset>
@@ -46,3 +53,5 @@ export default async function AnalysisPage() {
     </SidebarProvider>
   );
 }
+
+    
