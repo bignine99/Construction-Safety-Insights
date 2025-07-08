@@ -14,9 +14,9 @@ export default function PageHeader({ title, subtitle }: { title: string; subtitl
             <Image
               src="https://cnu.nhi.go.kr/upload/bureau/logo/20240306/F20240306164930230.png"
               alt="Chungnam National University Logo"
-              width={180}
-              height={45}
-              className="h-10 w-auto object-contain"
+              width={270}
+              height={68}
+              className="h-14 w-auto object-contain"
             />
           </div>
           <div className="text-center">
@@ -31,9 +31,9 @@ export default function PageHeader({ title, subtitle }: { title: string; subtitl
             <Image
               src="https://i.postimg.cc/x80mN6S0/NN01.png"
               alt="Ninetynine Logo"
-              width={150}
-              height={50}
-              className="h-10 w-auto object-contain"
+              width={225}
+              height={75}
+              className="h-14 w-auto object-contain"
             />
           </div>
         </div>
