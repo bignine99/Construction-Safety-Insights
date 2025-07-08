@@ -10,107 +10,114 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  Bar,
+  BarChart,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import {
+  ChartContainer,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from '@/components/ui/chart';
+
 
 interface CauseResultMatrixProps {
   incidents: Incident[];
 }
 
+const CAUSE_ORDER = ['시공오류', '설계오류', '기타'];
+
 export default function CauseResultMatrix({ incidents }: CauseResultMatrixProps) {
-  const { matrix, causeOrder, resultOrder, columnTotals, resultTotals, grandTotal } = useMemo(() => {
-    const causeOrder = ['기타', '설계오류', '시공오류'];
-    const matrix: Record<string, Record<string, number>> = {};
-    const resultTotals: Record<string, number> = {};
-    const columnTotals: Record<string, number> = { '기타': 0, '설계오류': 0, '시공오류': 0 };
+  const { chartData, resultTypes, chartConfig } = useMemo(() => {
+    const data: Record<string, Record<string, any>> = {};
+    const resultSet = new Set<string>();
+
+    for (const cause of CAUSE_ORDER) {
+      data[cause] = { name: cause };
+    }
 
     for (const incident of incidents) {
-      const cause = incident.causeMain || '기타';
+      const cause = CAUSE_ORDER.includes(incident.causeMain)
+        ? incident.causeMain
+        : '기타';
       const result = incident.resultMain || '분류불능';
-
-      if (!matrix[result]) {
-        matrix[result] = { '기타': 0, '설계오류': 0, '시공오류': 0 };
-      }
       
-      if(causeOrder.includes(cause)) {
-        matrix[result][cause]++;
-      } else {
-        matrix[result]['기타']++;
+      resultSet.add(result);
+
+      if (!data[cause][result]) {
+        data[cause][result] = 0;
       }
+      data[cause][result]++;
     }
 
-    const resultOrder = Object.keys(matrix).sort((a, b) => a.localeCompare(b));
+    const resultTypes = Array.from(resultSet).sort();
+    const chartData = Object.values(data);
     
-    for (const result of resultOrder) {
-        const rowTotal = causeOrder.reduce((sum, cause) => sum + (matrix[result][cause] || 0), 0);
-        resultTotals[result] = rowTotal;
-    }
-    
-    for (const cause of causeOrder) {
-        columnTotals[cause] = resultOrder.reduce((sum, result) => sum + (matrix[result][cause] || 0), 0);
-    }
-    
-    const grandTotal = causeOrder.reduce((sum, cause) => sum + columnTotals[cause], 0);
+    const colors = [
+      'hsl(var(--chart-1))',
+      'hsl(var(--chart-2))',
+      'hsl(var(--chart-3))',
+      'hsl(var(--chart-4))',
+      'hsl(var(--chart-5))',
+    ];
+    const config = resultTypes.reduce((acc, result, index) => {
+        acc[result] = {
+            label: result,
+            color: colors[index % colors.length],
+        };
+        return acc;
+    }, {} as any);
 
-    return { matrix, causeOrder, resultOrder, columnTotals, resultTotals, grandTotal };
+    return { chartData, resultTypes, chartConfig: config };
   }, [incidents]);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>사고원인-결과 인과관계</CardTitle>
-        <CardDescription>
-          주요 사고 원인과 결과 간의 관계
-        </CardDescription>
+        <CardDescription>주요 사고 원인에 따른 결과 분포</CardDescription>
       </CardHeader>
       <CardContent className="pl-6 pt-0">
-        <div className="max-h-[350px] overflow-auto relative">
-          <Table>
-            <TableHeader className="sticky top-0 z-10 bg-card">
-              <TableRow>
-                <TableHead className="w-[100px] font-bold">사고결과</TableHead>
-                {causeOrder.map((cause) => (
-                  <TableHead key={cause} className="text-right font-bold">{cause}</TableHead>
-                ))}
-                <TableHead className="text-right font-bold">총계</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {resultOrder.map((result) => (
-                <TableRow key={result}>
-                  <TableCell className="font-medium">{result}</TableCell>
-                  {causeOrder.map((cause) => (
-                    <TableCell key={cause} className="text-right">
-                      {(matrix[result][cause] || 0).toLocaleString()}
-                    </TableCell>
-                  ))}
-                   <TableCell className="text-right font-bold">
-                      {(resultTotals[result] || 0).toLocaleString()}
-                    </TableCell>
-                </TableRow>
+        <ChartContainer config={chartConfig} className="h-[350px] w-full">
+          <ResponsiveContainer>
+            <BarChart
+              data={chartData}
+              margin={{ left: 10, right: 10, top: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="name"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value) => value.toLocaleString()}
+                tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
+                label={{ value: '사고 건수', angle: -90, position: 'insideLeft', offset: 10, fill: 'hsl(var(--muted-foreground))' }}
+              />
+              <Tooltip
+                cursor={{ fill: 'hsl(var(--accent) / 0.2)' }}
+                content={<ChartTooltipContent indicator="dot" />}
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+              {resultTypes.map((result) => (
+                <Bar
+                  key={result}
+                  dataKey={result}
+                  stackId="a"
+                  fill={chartConfig[result]?.color}
+                  radius={[4, 4, 0, 0]}
+                />
               ))}
-            </TableBody>
-            <TableFooter className="sticky bottom-0 bg-card">
-              <TableRow>
-                <TableCell className="font-bold">총합계</TableCell>
-                {causeOrder.map((cause) => (
-                  <TableCell key={cause} className="text-right font-bold">
-                    {(columnTotals[cause] || 0).toLocaleString()}
-                  </TableCell>
-                ))}
-                 <TableCell className="text-right font-bold">
-                    {grandTotal.toLocaleString()}
-                 </TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
-        </div>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartContainer>
       </CardContent>
     </Card>
   );
