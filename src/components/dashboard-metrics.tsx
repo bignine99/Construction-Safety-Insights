@@ -16,6 +16,7 @@ export default function DashboardMetrics({ incidents }: DashboardMetricsProps) {
   const totalAccidents = incidents.length;
   const totalFatalities = incidents.reduce((acc, i) => acc + i.fatalities, 0);
   const totalInjuries = incidents.reduce((acc, i) => acc + i.injuries, 0);
+  const totalCasualties = totalFatalities + totalInjuries;
   const totalCostDamage = incidents.reduce((acc, i) => acc + i.costDamage, 0);
 
   const averageRiskIndex =
@@ -24,7 +25,7 @@ export default function DashboardMetrics({ incidents }: DashboardMetricsProps) {
       : 'N/A';
 
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-6">
       <KpiCard
         title="총 사고 건수"
         value={totalAccidents.toLocaleString()}
@@ -49,6 +50,12 @@ export default function DashboardMetrics({ incidents }: DashboardMetricsProps) {
         value={`${Math.round(totalCostDamage / 100).toLocaleString()}억원`}
         description="전체 기간"
         icon={Banknote}
+      />
+      <KpiCard
+        title="총 사상자 수"
+        value={totalCasualties.toLocaleString()}
+        description="전체 기간"
+        icon={Users}
       />
       <KpiCard
         title="평균 사고위험지수"
