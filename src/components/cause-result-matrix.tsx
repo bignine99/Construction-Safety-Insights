@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import type { Incident } from '@/lib/types';
 import {
   Card,
@@ -9,115 +9,98 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Bar,
-  BarChart,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
-import {
-  ChartContainer,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
-} from '@/components/ui/chart';
-
 
 interface CauseResultMatrixProps {
   incidents: Incident[];
 }
 
-const CAUSE_ORDER = ['시공오류', '설계오류', '기타'];
+const CAUSE_ORDER: string[] = ['시공오류', '설계오류', '기타'];
+const RESULT_ORDER: { key: string; label: string }[] = [
+  { key: '끼임', label: '끼임' },
+  { key: '물체에맞음', label: '물체에맞음' },
+  { key: '넘어짐', label: '넘어짐' },
+  { key: '기타', label: '기타' },
+  { key: '떨어짐', label: '떨어짐' },
+  { key: '절단베임', label: '베임' },
+  { key: '부딪힘', label: '부딪힘' },
+];
 
 export default function CauseResultMatrix({ incidents }: CauseResultMatrixProps) {
-  const { chartData, resultTypes, chartConfig } = useMemo(() => {
-    const data: Record<string, Record<string, any>> = {};
-    const resultSet = new Set<string>();
+  const { matrix, maxCount } = useMemo(() => {
+    const matrixData: Record<string, Record<string, number>> = {};
+    let max = 0;
 
-    for (const cause of CAUSE_ORDER) {
-      data[cause] = { name: cause };
-    }
+    CAUSE_ORDER.forEach(cause => {
+      matrixData[cause] = {};
+      RESULT_ORDER.forEach(result => {
+        matrixData[cause][result.key] = 0;
+      });
+    });
 
     for (const incident of incidents) {
       const cause = CAUSE_ORDER.includes(incident.causeMain)
         ? incident.causeMain
         : '기타';
-      const result = incident.resultMain || '분류불능';
-      
-      resultSet.add(result);
+      const resultKey = RESULT_ORDER.find(r => r.key === incident.resultMain)?.key;
 
-      if (!data[cause][result]) {
-        data[cause][result] = 0;
+      if (resultKey && matrixData[cause]) {
+        matrixData[cause][resultKey] = (matrixData[cause][resultKey] || 0) + 1;
+        if (matrixData[cause][resultKey] > max) {
+          max = matrixData[cause][resultKey];
+        }
       }
-      data[cause][result]++;
     }
 
-    const resultTypes = Array.from(resultSet).sort();
-    const chartData = Object.values(data);
-    
-    const colors = [
-      'hsl(var(--chart-1))',
-      'hsl(var(--chart-2))',
-      'hsl(var(--chart-3))',
-      'hsl(var(--chart-4))',
-      'hsl(var(--chart-5))',
-    ];
-    const config = resultTypes.reduce((acc, result, index) => {
-        acc[result] = {
-            label: result,
-            color: colors[index % colors.length],
-        };
-        return acc;
-    }, {} as any);
-
-    return { chartData, resultTypes, chartConfig: config };
+    return { matrix: matrixData, maxCount: Math.max(1, max) };
   }, [incidents]);
 
   return (
-    <Card>
+    <Card className="flex flex-col">
       <CardHeader>
         <CardTitle>사고원인-결과 인과관계</CardTitle>
         <CardDescription>주요 사고 원인에 따른 결과 분포</CardDescription>
       </CardHeader>
-      <CardContent className="pl-6 pt-0">
-        <ChartContainer config={chartConfig} className="h-[350px] w-full">
-          <ResponsiveContainer>
-            <BarChart
-              data={chartData}
-              margin={{ left: 10, right: 10, top: 20, bottom: 20 }}
-            >
-              <XAxis
-                dataKey="name"
-                tickLine={false}
-                axisLine={false}
-                tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
-              />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => value.toLocaleString()}
-                tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
-                label={{ value: '사고 건수', angle: -90, position: 'insideLeft', offset: 10, fill: 'hsl(var(--muted-foreground))' }}
-              />
-              <Tooltip
-                cursor={{ fill: 'hsl(var(--accent) / 0.2)' }}
-                content={<ChartTooltipContent indicator="dot" />}
-              />
-              <ChartLegend content={<ChartLegendContent />} />
-              {resultTypes.map((result) => (
-                <Bar
-                  key={result}
-                  dataKey={result}
-                  stackId="a"
-                  fill={chartConfig[result]?.color}
-                  radius={[4, 4, 0, 0]}
-                />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartContainer>
+      <CardContent className="flex-grow pt-2">
+        <div className="grid h-full grid-cols-4 gap-x-2 gap-y-1 text-center text-xs md:text-sm">
+          {/* Header - empty cell for corner */}
+          <div /> 
+          {CAUSE_ORDER.map((cause) => (
+            <div key={cause} className="font-semibold text-muted-foreground">
+              {cause}
+            </div>
+          ))}
+
+          {/* Rows */}
+          {RESULT_ORDER.map((result) => (
+            <React.Fragment key={result.key}>
+              <div className="flex items-center justify-start text-left font-medium text-muted-foreground">
+                {result.label}
+              </div>
+              {CAUSE_ORDER.map((cause) => {
+                const count = matrix[cause]?.[result.key] || 0;
+                // Use square root for sizing to make area perception more accurate
+                const size = count > 0 ? 24 + Math.sqrt(count / maxCount) * 32 : 0; 
+
+                return (
+                  <div key={`${cause}-${result.key}`} className="flex h-12 items-center justify-center">
+                    {count > 0 && (
+                      <div
+                        className="flex items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform hover:scale-110"
+                        style={{
+                          width: `${size}px`,
+                          height: `${size}px`,
+                        }}
+                        title={`${cause} > ${result.label}: ${count}건`}
+                      >
+                        <span className="text-sm font-bold">{count}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </React.Fragment>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
