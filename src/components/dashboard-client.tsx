@@ -14,6 +14,7 @@ import CauseSubtypeBarChart from './cause-subtype-bar-chart';
 import ResultMainChart from './result-main-chart';
 import CauseResultMatrix from './cause-result-matrix';
 import RiskRatioChart from './risk-ratio-chart';
+import { DashboardNav } from './dashboard-nav';
 
 export default function DashboardClient({ incidents }: { incidents: Incident[] }) {
   const [filters, setFilters] = useState({
@@ -63,6 +64,7 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
               title="안전사고 분석 대시보드"
               subtitle="WBS-RBS 기반 위험정보 분석 시스템"
             />
+            <DashboardNav />
             <DashboardMetrics incidents={filteredIncidents} />
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
               <MonthlyAccidentsChart incidents={filteredIncidents} />
