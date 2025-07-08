@@ -9,6 +9,8 @@ import PageHeader from './page-header';
 import MonthlyAccidentsChart from './monthly-accidents-chart';
 import ConstructionSubtypePieChart from './construction-subtype-pie-chart';
 import { Card } from './ui/card';
+import ObjectSubtypeBarChart from './object-subtype-bar-chart';
+import CauseSubtypeBarChart from './cause-subtype-bar-chart';
 
 export default function DashboardClient({ incidents }: { incidents: Incident[] }) {
   const [filters, setFilters] = useState({
@@ -71,9 +73,11 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
               <MonthlyAccidentsChart incidents={filteredIncidents} />
               <ConstructionSubtypePieChart incidents={filteredIncidents} />
-              {Array.from({ length: 6 }).map((_, index) => (
+              <ObjectSubtypeBarChart incidents={filteredIncidents} />
+              <CauseSubtypeBarChart incidents={filteredIncidents} />
+              {Array.from({ length: 4 }).map((_, index) => (
                 <Card key={index} className="flex min-h-[426px] items-center justify-center p-6">
-                  <p className="text-muted-foreground">차트 영역 {index + 3}</p>
+                  <p className="text-muted-foreground">차트 영역 {index + 5}</p>
                 </Card>
               ))}
             </div>
