@@ -1,0 +1,58 @@
+
+[
+  {
+    "id": "INC001",
+    "date": "2023-01-15",
+    "projectType": "Commercial",
+    "projectCost": 5500000,
+    "location": "Seoul",
+    "severityIndex": 8,
+    "causeMain": "Fall",
+    "causeSpecific": "Worker fell from a height of 10 meters due to improperly secured scaffolding. Lack of safety harness.",
+    "contractor": "BuildFast Inc."
+  },
+  {
+    "id": "INC002",
+    "date": "2023-03-22",
+    "projectType": "Residential",
+    "projectCost": 1200000,
+    "location": "Busan",
+    "severityIndex": 5,
+    "causeMain": "Struck by Object",
+    "causeSpecific": "A hammer was dropped from the 5th floor, striking a worker on the ground who was not wearing a hard hat.",
+    "contractor": "HomeBuild Co."
+  },
+  {
+    "id": "INC003",
+    "date": "2023-05-30",
+    "projectType": "Infrastructure",
+    "projectCost": 25000000,
+    "location": "Incheon",
+    "severityIndex": 9,
+    "causeMain": "Electrocution",
+    "causeSpecific": "Contact with an unmarked high-voltage power line during excavation work. The area was not properly surveyed before digging.",
+    "contractor": "InfraStrux"
+  },
+  {
+    "id": "INC004",
+    "date": "2023-07-11",
+    "projectType": "Commercial",
+    "projectCost": 8000000,
+    "location": "Daegu",
+    "severityIndex": 6,
+    "causeMain": "Caught-in/between",
+    "causeSpecific": "Operator's hand was caught in the rotating machinery of a concrete mixer. Machine guard was removed for maintenance and not replaced.",
+    "contractor": "BuildFast Inc."
+  },
+  {
+    "id": "INC005",
+    "date": "2023-09-05",
+    "projectType": "Residential",
+    "projectCost": 2500000,
+    "location": "Seoul",
+    "severityIndex": 7,
+    "causeMain": "Fall",
+    "causeSpecific": "Worker slipped on a wet surface on the top floor and fell down a staircase. No warning signs for the wet area.",
+    "contractor": "HomeBuild Co."
+  }
+]
