@@ -22,7 +22,7 @@ export function DashboardNav() {
     <div className="flex gap-2 rounded-lg bg-muted/50 p-1">
       <Button
         asChild
-        variant={pathname === '/' ? 'default' : 'ghost'}
+        variant={pathname === '/' ? 'default' : 'outline'}
         className="flex-1 justify-center"
       >
         <Link href="/">
@@ -32,7 +32,7 @@ export function DashboardNav() {
       </Button>
       <Button
         asChild
-        variant={pathname === '/analysis' ? 'default' : 'ghost'}
+        variant={pathname === '/analysis' ? 'default' : 'outline'}
         className="flex-1 justify-center"
       >
         <Link href="/analysis">
@@ -41,7 +41,7 @@ export function DashboardNav() {
         </Link>
       </Button>
       <Button
-        variant="ghost"
+        variant="outline"
         onClick={handlePdfDownload}
         className="flex-1 justify-center"
       >
