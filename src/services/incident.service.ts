@@ -26,6 +26,12 @@ interface RawIncident {
   '사고위험지수': number;
 }
 
+function cleanConstructionType(type: string): string {
+  if (!type) return '기타';
+  const cleaned = type.replace(/^[0-9]+\s*/, '').trim();
+  return cleaned || '기타';
+}
+
 export async function getIncidents(): Promise<Incident[]> {
   const filePath = path.join(process.cwd(), 'data/incidents.json');
   try {
@@ -39,8 +45,8 @@ export async function getIncidents(): Promise<Incident[]> {
       projectOwner: raw['사업특성_구분'],
       projectType: raw['사업특성_용도'],
       projectCost: raw['사업특성_공사비(억원미만)'],
-      constructionTypeMain: raw['공종_대분류'],
-      constructionTypeSub: raw['공종_중분류'],
+      constructionTypeMain: cleanConstructionType(raw['공종_대분류']),
+      constructionTypeSub: cleanConstructionType(raw['공종_중분류']),
       workType: raw['공종_작업'],
       objectMain: raw['사고객체_대분류'],
       objectSub: raw['사고객체_중분류'],
@@ -62,5 +68,3 @@ export async function getIncidents(): Promise<Incident[]> {
     return [];
   }
 }
-
-    

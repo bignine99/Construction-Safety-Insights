@@ -8,12 +8,12 @@ import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar'
 import PageHeader from './page-header';
 import MonthlyAccidentsChart from './monthly-accidents-chart';
 import ConstructionSubtypePieChart from './construction-subtype-pie-chart';
-import { Card } from './ui/card';
 import ObjectSubtypeBarChart from './object-subtype-bar-chart';
 import ObjectSubtypeCountChart from './object-subtype-count-chart';
 import CauseSubtypeBarChart from './cause-subtype-bar-chart';
 import ResultMainChart from './result-main-chart';
 import CauseResultMatrix from './cause-result-matrix';
+import RiskRatioChart from './risk-ratio-chart';
 
 export default function DashboardClient({ incidents }: { incidents: Incident[] }) {
   const [filters, setFilters] = useState({
@@ -81,9 +81,7 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
               <CauseSubtypeBarChart incidents={filteredIncidents} />
               <ResultMainChart incidents={filteredIncidents} />
               <CauseResultMatrix incidents={filteredIncidents} />
-              <Card className="flex min-h-[426px] items-center justify-center p-6">
-                <p className="text-muted-foreground">차트 영역 8</p>
-              </Card>
+              <RiskRatioChart incidents={filteredIncidents} />
             </div>
           </main>
         </SidebarInset>
