@@ -15,8 +15,8 @@ export default function PageHeader({
     <div className="flex w-full items-start gap-4">
       <SidebarTrigger className="md:hidden" />
       <Card className="flex-1">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex flex-1 items-center justify-start">
+        <div className="flex items-end justify-between p-4">
+          <div className="flex flex-1 items-end justify-start">
             <Image
               src="https://cnu.nhi.go.kr/upload/bureau/logo/20240306/F20240306164930230.png"
               alt="Chungnam National University Logo"
@@ -25,7 +25,7 @@ export default function PageHeader({
               className="h-14 w-auto object-contain"
             />
           </div>
-          <div className="text-center">
+          <div className="pb-1 text-center">
             <h1 className="text-xl font-bold tracking-tight md:text-2xl">
               {title}
             </h1>
@@ -33,7 +33,7 @@ export default function PageHeader({
               {subtitle}
             </p>
           </div>
-          <div className="flex flex-1 items-center justify-end">
+          <div className="flex flex-1 items-end justify-end">
             <Image
               src="https://i.postimg.cc/x80mN6S0/NN01.png"
               alt="Ninetynine Logo"

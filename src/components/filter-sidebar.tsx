@@ -61,7 +61,7 @@ export default function FilterSidebar({
 
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
-      <div className="p-4">
+      <div className="p-4 pt-6">
         <Image
           src="https://i.postimg.cc/dQ2dmQMV/image.png"
           alt="SMART 스마트건설사업단"
