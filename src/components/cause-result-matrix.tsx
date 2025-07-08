@@ -60,8 +60,8 @@ export default function CauseResultMatrix({ incidents }: CauseResultMatrixProps)
         <CardTitle>사고원인-결과 인과관계</CardTitle>
         <CardDescription>주요 사고 원인에 따른 결과 분포</CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow pt-2">
-        <div className="grid h-full grid-cols-4 gap-x-2 gap-y-1 text-center text-xs md:text-sm">
+      <CardContent className="flex-grow pt-0">
+        <div className="grid h-full grid-cols-4 gap-x-2 gap-y-0 text-center text-xs md:text-sm">
           {/* Header - empty cell for corner */}
           <div /> 
           {CAUSE_ORDER.map((cause) => (
@@ -79,10 +79,10 @@ export default function CauseResultMatrix({ incidents }: CauseResultMatrixProps)
               {CAUSE_ORDER.map((cause) => {
                 const count = matrix[cause]?.[result.key] || 0;
                 // Use square root for sizing to make area perception more accurate
-                const size = count > 0 ? 24 + Math.sqrt(count / maxCount) * 32 : 0; 
+                const size = count > 0 ? 18 + Math.sqrt(count / maxCount) * 26 : 0; 
 
                 return (
-                  <div key={`${cause}-${result.key}`} className="flex h-12 items-center justify-center">
+                  <div key={`${cause}-${result.key}`} className="flex h-10 items-center justify-center">
                     {count > 0 && (
                       <div
                         className="flex items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform hover:scale-110"

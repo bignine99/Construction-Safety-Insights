@@ -31,7 +31,7 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
         <CardTitle>년도별 사고 발생 현황</CardTitle>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }} className="h-[350px] w-full">
+        <ChartContainer config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }} className="h-[220px] w-full">
           <ResponsiveContainer>
             <LineChart
               data={chartData}

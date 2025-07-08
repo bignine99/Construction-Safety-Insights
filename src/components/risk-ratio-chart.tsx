@@ -64,7 +64,7 @@ export default function RiskRatioChart({ incidents }: RiskRatioChartProps) {
       <CardContent className="flex-grow flex items-center justify-center pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square h-full max-h-[250px]"
+          className="mx-auto aspect-square h-full max-h-[180px]"
         >
           <ResponsiveContainer>
             <RadialBarChart
@@ -100,7 +100,7 @@ export default function RiskRatioChart({ incidents }: RiskRatioChartProps) {
                   y="50%"
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  className="fill-foreground text-3xl font-bold"
+                  className="fill-foreground text-2xl font-bold"
                 >
                   {`${percentage.toFixed(2)}%`}
                 </text>

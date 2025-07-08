@@ -67,11 +67,11 @@ export default function ConstructionSubtypePieChart({ incidents }: ConstructionS
         <CardTitle>중공종별 사고 비율</CardTitle>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[350px] w-full">
+        <ChartContainer config={chartConfig} className="h-[220px] w-full">
           <ResponsiveContainer>
             <PieChart>
               <Tooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
-              <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={90} strokeWidth={2}>
+              <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={40} outerRadius={60} strokeWidth={2}>
                 {chartData.map((entry) => (
                   <Cell key={`cell-${entry.name}`} fill={chartConfig[entry.name]?.color || 'hsl(var(--muted))'} className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"/>
                 ))}

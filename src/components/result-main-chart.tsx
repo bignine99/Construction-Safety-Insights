@@ -50,7 +50,7 @@ export default function ResultMainChart({ incidents }: ResultMainChartProps) {
       <CardContent>
         <ChartContainer
           config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }}
-          className="h-[350px] w-full"
+          className="h-[220px] w-full"
         >
           <ResponsiveContainer>
             <RadarChart data={chartData}>

@@ -14,12 +14,12 @@ interface KpiCardProps {
 export default function KpiCard({ title, value, description, icon: Icon, iconClassName, className }: KpiCardProps) {
   return (
     <Card className={cn('shadow-sm', className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <Icon className={cn("h-4 w-4 text-muted-foreground", iconClassName)} />
       </CardHeader>
-      <CardContent className="pt-2">
-        <div className="text-2xl font-bold">{value}</div>
+      <CardContent className="p-4 pt-0">
+        <div className="text-xl font-bold">{value}</div>
         <p className="text-xs text-muted-foreground">{description}</p>
       </CardContent>
     </Card>

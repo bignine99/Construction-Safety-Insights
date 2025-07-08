@@ -29,7 +29,7 @@ export default function ObjectSubtypeBarChart({ incidents }: ObjectSubtypeBarCha
         <CardTitle>작업별 사고위험지수</CardTitle>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={{ '사고위험지수': { label: '사고위험지수', color: 'hsl(var(--chart-3))' } }} className="h-[350px] w-full">
+        <ChartContainer config={{ '사고위험지수': { label: '사고위험지수', color: 'hsl(var(--chart-3))' } }} className="h-[220px] w-full">
           <ResponsiveContainer>
             <RechartsBarChart 
               data={chartData} 
