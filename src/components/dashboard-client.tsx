@@ -4,9 +4,7 @@ import React, { useState, useMemo } from 'react';
 import type { Incident } from '@/lib/types';
 import FilterSidebar from '@/components/filter-sidebar';
 import DashboardMetrics from '@/components/dashboard-metrics';
-import CauseBarChart from '@/components/cause-bar-chart';
-import ProjectTypePieChart from '@/components/project-type-pie-chart';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import SecondaryMetrics from '@/components/secondary-metrics';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import PageHeader from './page-header';
 
@@ -40,7 +38,11 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
     const sortedCosts = Array.from(costs).sort((a, b) => {
         if (a.includes('~')) return 1;
         if (b.includes('~')) return -1;
-        return parseFloat(a.replace(/,/g, '')) - parseFloat(b.replace(/,/g, ''));
+        const valA = parseFloat(a.replace(/,/g, ''));
+        const valB = parseFloat(b.replace(/,/g, ''));
+        if (isNaN(valA)) return 1;
+        if (isNaN(valB)) return -1;
+        return valA - valB;
     });
     return ['all', ...sortedCosts];
   }, [incidents]);
@@ -64,24 +66,7 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
               subtitle="건설 안전 데이터를 분석하여 추세 파악 및 미래 사고 예방"
             />
             <DashboardMetrics incidents={filteredIncidents} />
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>사고 원인별 분석</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CauseBarChart incidents={filteredIncidents} />
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>공사 종류별 분석</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ProjectTypePieChart incidents={filteredIncidents} />
-                </CardContent>
-              </Card>
-            </div>
+            <SecondaryMetrics incidents={filteredIncidents} />
           </main>
         </SidebarInset>
       </div>

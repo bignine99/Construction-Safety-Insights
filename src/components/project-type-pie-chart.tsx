@@ -36,6 +36,18 @@ const chartConfig = {
     label: '문화 및 집회시설',
     color: 'hsl(var(--chart-1))',
   },
+  '근린생활시설': {
+    label: '근린생활시설',
+    color: 'hsl(var(--chart-3))',
+  },
+  '자동차 관련시설': {
+    label: '자동차 관련시설',
+    color: 'hsl(var(--chart-4))',
+  },
+  '미입력': {
+    label: '미입력',
+    color: 'hsl(var(--muted))',
+  },
   '기타': {
     label: '기타',
     color: 'hsl(var(--chart-2))',
@@ -45,7 +57,8 @@ const chartConfig = {
 export default function ProjectTypePieChart({ incidents }: ProjectTypePieChartProps) {
   const data = Object.entries(
     incidents.reduce((acc, incident) => {
-      acc[incident.projectType] = (acc[incident.projectType] || 0) + 1;
+      const projectType = incident.projectType || '기타';
+      acc[projectType] = (acc[projectType] || 0) + 1;
       return acc;
     }, {} as Record<string, number>)
   ).map(([name, value]) => ({ name, value }));
