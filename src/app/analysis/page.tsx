@@ -9,21 +9,18 @@ export const dynamic = 'force-dynamic';
 export default async function AnalysisPage() {
   const incidents = await getIncidents();
   
-  const uniqueProjectTypes = ['all', ...Array.from(new Set(incidents.map(i => i.projectType)))];
-  const uniqueCauses = ['all', ...Array.from(new Set(incidents.map(i => i.causeMain).filter(Boolean)))];
-  
-  const costs = new Set(incidents.map(i => i.projectCost));
-  const sortedCosts = Array.from(costs).sort((a, b) => {
-      if (a.includes('~')) return 1;
-      if (b.includes('~')) return -1;
-      return parseFloat(a.replace(/,/g, '')) - parseFloat(b.replace(/,/g, ''));
-  });
-  const uniqueProjectCosts = ['all', ...sortedCosts];
-  
+  const uniqueConstructionTypeMains = ['all', ...Array.from(new Set(incidents.map(i => i.constructionTypeMain).filter(Boolean)))];
+  const uniqueConstructionTypeSubs = ['all', ...Array.from(new Set(incidents.map(i => i.constructionTypeSub).filter(Boolean)))];
+  const uniqueObjectMains = ['all', ...Array.from(new Set(incidents.map(i => i.objectMain).filter(Boolean)))];
+  const uniqueCauseMains = ['all', ...Array.from(new Set(incidents.map(i => i.causeMain).filter(Boolean)))];
+  const uniqueResultMains = ['all', ...Array.from(new Set(incidents.map(i => i.resultMain).filter(Boolean)))];
+
   const filters = {
-    projectType: 'all',
+    constructionTypeMain: 'all',
+    constructionTypeSub: 'all',
+    objectMain: 'all',
     causeMain: 'all',
-    projectCost: 'all',
+    resultMain: 'all',
   };
 
   return (
@@ -33,9 +30,11 @@ export default async function AnalysisPage() {
           <FilterSidebar
             filters={filters}
             onFilterChange={() => {}} // No-op for this page
-            projectTypes={uniqueProjectTypes}
-            causes={uniqueCauses}
-            projectCosts={uniqueProjectCosts}
+            constructionTypeMains={uniqueConstructionTypeMains}
+            constructionTypeSubs={uniqueConstructionTypeSubs}
+            objectMains={uniqueObjectMains}
+            causeMains={uniqueCauseMains}
+            resultMains={uniqueResultMains}
           />
         </Sidebar>
         <SidebarInset>
@@ -53,5 +52,3 @@ export default async function AnalysisPage() {
     </SidebarProvider>
   );
 }
-
-    

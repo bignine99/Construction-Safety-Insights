@@ -17,42 +17,31 @@ import RiskRatioChart from './risk-ratio-chart';
 
 export default function DashboardClient({ incidents }: { incidents: Incident[] }) {
   const [filters, setFilters] = useState({
-    projectType: 'all',
+    constructionTypeMain: 'all',
+    constructionTypeSub: 'all',
+    objectMain: 'all',
     causeMain: 'all',
-    projectCost: 'all',
+    resultMain: 'all',
   });
 
   const filteredIncidents = useMemo(() => {
     return incidents.filter(incident => {
-      const { projectType, causeMain, projectCost } = filters;
-      const projectTypeMatch = projectType === 'all' || incident.projectType === projectType;
+      const { constructionTypeMain, constructionTypeSub, objectMain, causeMain, resultMain } = filters;
+      const constructionTypeMainMatch = constructionTypeMain === 'all' || incident.constructionTypeMain === constructionTypeMain;
+      const constructionTypeSubMatch = constructionTypeSub === 'all' || incident.constructionTypeSub === constructionTypeSub;
+      const objectMainMatch = objectMain === 'all' || incident.objectMain === objectMain;
       const causeMainMatch = causeMain === 'all' || incident.causeMain === causeMain;
-      const projectCostMatch = projectCost === 'all' || incident.projectCost === projectCost;
-      return projectTypeMatch && causeMainMatch && projectCostMatch;
+      const resultMainMatch = resultMain === 'all' || incident.resultMain === resultMain;
+      
+      return constructionTypeMainMatch && constructionTypeSubMatch && objectMainMatch && causeMainMatch && resultMainMatch;
     });
   }, [filters, incidents]);
 
-  const uniqueProjectTypes = useMemo(
-    () => ['all', ...Array.from(new Set(incidents.map(i => i.projectType)))],
-    [incidents]
-  );
-  const uniqueCauses = useMemo(
-    () => ['all', ...Array.from(new Set(incidents.map(i => i.causeMain).filter(Boolean)))],
-    [incidents]
-  );
-  const uniqueProjectCosts = useMemo(() => {
-    const costs = new Set(incidents.map(i => i.projectCost));
-    const sortedCosts = Array.from(costs).sort((a, b) => {
-        if (a.includes('~')) return 1;
-        if (b.includes('~')) return -1;
-        const valA = parseFloat(a.replace(/,/g, ''));
-        const valB = parseFloat(b.replace(/,/g, ''));
-        if (isNaN(valA)) return 1;
-        if (isNaN(valB)) return -1;
-        return valA - valB;
-    });
-    return ['all', ...sortedCosts];
-  }, [incidents]);
+  const uniqueConstructionTypeMains = useMemo(() => ['all', ...Array.from(new Set(incidents.map(i => i.constructionTypeMain).filter(Boolean)))], [incidents]);
+  const uniqueConstructionTypeSubs = useMemo(() => ['all', ...Array.from(new Set(incidents.map(i => i.constructionTypeSub).filter(Boolean)))], [incidents]);
+  const uniqueObjectMains = useMemo(() => ['all', ...Array.from(new Set(incidents.map(i => i.objectMain).filter(Boolean)))], [incidents]);
+  const uniqueCauseMains = useMemo(() => ['all', ...Array.from(new Set(incidents.map(i => i.causeMain).filter(Boolean)))], [incidents]);
+  const uniqueResultMains = useMemo(() => ['all', ...Array.from(new Set(incidents.map(i => i.resultMain).filter(Boolean)))], [incidents]);
 
   return (
     <SidebarProvider>
@@ -61,9 +50,11 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
           <FilterSidebar
             filters={filters}
             onFilterChange={setFilters}
-            projectTypes={uniqueProjectTypes}
-            causes={uniqueCauses}
-            projectCosts={uniqueProjectCosts}
+            constructionTypeMains={uniqueConstructionTypeMains}
+            constructionTypeSubs={uniqueConstructionTypeSubs}
+            objectMains={uniqueObjectMains}
+            causeMains={uniqueCauseMains}
+            resultMains={uniqueResultMains}
           />
         </Sidebar>
         <SidebarInset>
