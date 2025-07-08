@@ -4,9 +4,10 @@ import React, { useState, useMemo } from 'react';
 import type { Incident } from '@/lib/types';
 import FilterSidebar from '@/components/filter-sidebar';
 import DashboardMetrics from '@/components/dashboard-metrics';
-import SecondaryMetrics from '@/components/secondary-metrics';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import PageHeader from './page-header';
+import AnnualAccidentsChart from './annual-accidents-chart';
+import AccidentTypeChart from './accident-type-chart';
 
 export default function DashboardClient({ incidents }: { incidents: Incident[] }) {
   const [filters, setFilters] = useState({
@@ -66,7 +67,10 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
               subtitle="건설 안전 데이터를 분석하여 추세 파악 및 미래 사고 예방"
             />
             <DashboardMetrics incidents={filteredIncidents} />
-            <SecondaryMetrics incidents={filteredIncidents} />
+            <div className="grid grid-cols-1 gap-6">
+              <AnnualAccidentsChart incidents={filteredIncidents} />
+              <AccidentTypeChart incidents={filteredIncidents} />
+            </div>
           </main>
         </SidebarInset>
       </div>
