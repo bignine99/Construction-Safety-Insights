@@ -22,7 +22,7 @@ export default function PageHeader({
               alt="Chungnam National University Logo"
               width={270}
               height={68}
-              className="h-14 w-auto object-contain"
+              className="h-16 w-auto object-contain"
             />
           </div>
           <div className="pb-1 text-center">
@@ -39,7 +39,7 @@ export default function PageHeader({
               alt="Ninetynine Logo"
               width={225}
               height={75}
-              className="h-14 w-auto object-contain"
+              className="h-16 w-auto object-contain"
             />
           </div>
         </div>
