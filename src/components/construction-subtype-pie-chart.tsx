@@ -26,13 +26,17 @@ export default function ConstructionSubtypePieChart({ incidents }: ConstructionS
     const sortedData = Object.entries(data)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
+      
+    let finalData;
+    const MAX_SLICES = 6; 
 
-    const topData = sortedData.slice(0, 5);
-    const otherValue = sortedData.slice(5).reduce((sum, item) => sum + item.value, 0);
-
-    const finalData = topData;
-    if (otherValue > 0) {
-      finalData.push({ name: '기타', value: otherValue });
+    if (sortedData.length > MAX_SLICES) {
+      const topData = sortedData.slice(0, MAX_SLICES - 1);
+      const otherValue = sortedData.slice(MAX_SLICES - 1).reduce((sum, item) => sum + item.value, 0);
+      
+      finalData = [...topData, { name: '기타', value: otherValue }];
+    } else {
+      finalData = sortedData;
     }
 
     const config = finalData.reduce((acc, item, index) => {
