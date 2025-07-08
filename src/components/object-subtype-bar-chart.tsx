@@ -12,26 +12,24 @@ interface ObjectSubtypeBarChartProps {
 
 export default function ObjectSubtypeBarChart({ incidents }: ObjectSubtypeBarChartProps) {
   const chartData = useMemo(() => {
-    const data = incidents.reduce((acc, incident) => {
-      const subType = incident.objectSub || '기타';
-      acc[subType] = (acc[subType] || 0) + 1;
+    const dataByWorkType = incidents.reduce((acc, incident) => {
+      const workType = incident.workType || '기타';
+      acc[workType] = (acc[workType] || 0) + incident.riskIndex;
       return acc;
     }, {} as Record<string, number>);
 
-    return Object.entries(data)
-      .map(([name, value]) => ({ name, '사고 건수': value }))
-      .sort((a, b) => b['사고 건수'] - a['사고 건수'])
-      .slice(0, 9)
-      .sort((a, b) => a['사고 건수'] - b['사고 건수']);
+    return Object.entries(dataByWorkType)
+      .map(([name, value]) => ({ name, '사고위험지수': parseFloat(value.toFixed(1)) }))
+      .sort((a, b) => a['사고위험지수'] - b['사고위험지수']);
   }, [incidents]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>사고객체 중분류별 사고건수</CardTitle>
+        <CardTitle>작업별 사고위험지수</CardTitle>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }} className="h-[350px] w-full">
+        <ChartContainer config={{ '사고위험지수': { label: '사고위험지수', color: 'hsl(var(--chart-3))' } }} className="h-[350px] w-full">
           <ResponsiveContainer>
             <RechartsBarChart 
               data={chartData} 
@@ -45,6 +43,7 @@ export default function ObjectSubtypeBarChart({ incidents }: ObjectSubtypeBarCha
                 axisLine={false} 
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }} 
                 domain={[0, 'dataMax']}
+                tickFormatter={(value) => value.toLocaleString()}
               />
               <YAxis
                 dataKey="name"
@@ -59,7 +58,7 @@ export default function ObjectSubtypeBarChart({ incidents }: ObjectSubtypeBarCha
                 cursor={{ fill: 'hsl(var(--accent) / 0.2)' }}
                 content={<ChartTooltipContent indicator="line" hideLabel />}
               />
-              <Bar dataKey="사고 건수" fill="hsl(var(--chart-3))" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="사고위험지수" fill="hsl(var(--chart-3))" radius={[0, 4, 4, 0]} />
             </RechartsBarChart>
           </ResponsiveContainer>
         </ChartContainer>
