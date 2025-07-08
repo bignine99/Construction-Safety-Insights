@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, BrainCircuit, Search } from 'lucide-react';
+import { LayoutDashboard, BrainCircuit, Search, FileDown } from 'lucide-react';
 
 import { Label } from '@/components/ui/label';
 import {
@@ -63,6 +63,13 @@ export default function FilterSidebar({
     });
   };
 
+  const handlePdfDownload = () => {
+    toast({
+      title: '기능 구현 중',
+      description: '분석결과 PDF 다운로드 기능은 현재 개발 중입니다.',
+    });
+  };
+
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="p-4">
@@ -96,6 +103,16 @@ export default function FilterSidebar({
           AI 기반 데이터 분석
         </Link>
       </nav>
+      <div className="mt-1 px-4">
+        <Button
+          variant="ghost"
+          className="h-auto w-full justify-start gap-3 rounded-lg px-3 py-2 font-normal text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          onClick={handlePdfDownload}
+        >
+          <FileDown className="h-4 w-4" />
+          분석결과 PDF 다운로드
+        </Button>
+      </div>
       <div className="mt-4 px-4">
         <Separator className="bg-sidebar-border" />
       </div>
