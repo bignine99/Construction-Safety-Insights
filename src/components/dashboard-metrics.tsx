@@ -4,7 +4,7 @@ import {
   AlertTriangle,
   HeartCrack,
   Users,
-  CreditCard,
+  Banknote,
   TrendingUp,
 } from 'lucide-react';
 
@@ -22,44 +22,39 @@ export default function DashboardMetrics({ incidents }: DashboardMetricsProps) {
     totalAccidents > 0
       ? (incidents.reduce((acc, i) => acc + i.riskIndex, 0) / totalAccidents).toFixed(2)
       : 'N/A';
-  
-  const averageCostDamage =
-    totalAccidents > 0 
-      ? Math.round(totalCostDamage / totalAccidents)
-      : 0;
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
-      <KpiCard 
-        title="총 사고 건수" 
-        value={totalAccidents} 
-        description="기록된 총 사고 건수"
-        icon={AlertTriangle} 
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+      <KpiCard
+        title="총 사고 건수"
+        value={totalAccidents.toLocaleString()}
+        description={`${incidents.length > 0 ? new Date(incidents[0].dateTime).getFullYear() : ''}년~현재`}
+        icon={AlertTriangle}
       />
-      <KpiCard 
-        title="사망자" 
-        value={totalFatalities} 
-        description="총 사망자 수"
+      <KpiCard
+        title="총 사망자 수"
+        value={totalFatalities.toLocaleString()}
+        description="전체 기간"
         icon={HeartCrack}
         iconClassName="text-destructive"
       />
-      <KpiCard 
-        title="부상자" 
-        value={totalInjuries} 
-        description="총 부상자 수"
-        icon={Users} 
+      <KpiCard
+        title="총 부상자 수"
+        value={totalInjuries.toLocaleString()}
+        description="전체 기간"
+        icon={Users}
       />
-      <KpiCard 
-        title="피해금액" 
-        value={`${averageCostDamage.toLocaleString()}만원`}
-        description="사건당 평균 피해금액(만원)"
-        icon={CreditCard} 
+      <KpiCard
+        title="총 피해 금액"
+        value={`${Math.round(totalCostDamage / 100).toLocaleString()}억원`}
+        description="전체 기간"
+        icon={Banknote}
       />
-      <KpiCard 
-        title="사고위험지수" 
-        value={averageRiskIndex} 
-        description="평균 사고 심각도 점수"
-        icon={TrendingUp} 
+      <KpiCard
+        title="평균 사고위험지수"
+        value={averageRiskIndex === 'N/A' ? 'N/A' : `${averageRiskIndex}/10`}
+        description="최고 10"
+        icon={TrendingUp}
       />
     </div>
   );
