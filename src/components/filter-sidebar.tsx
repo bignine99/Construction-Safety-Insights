@@ -1,9 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import { LayoutDashboard, BrainCircuit, Search, FileDown } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 import { Label } from '@/components/ui/label';
 import {
@@ -15,7 +13,6 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 interface FilterSidebarProps {
@@ -43,7 +40,6 @@ export default function FilterSidebar({
   causeMains,
   resultMains,
 }: FilterSidebarProps) {
-  const pathname = usePathname();
   const { toast } = useToast();
 
   const handleReset = () => {
@@ -63,13 +59,6 @@ export default function FilterSidebar({
     });
   };
 
-  const handlePdfDownload = () => {
-    toast({
-      title: '기능 구현 중',
-      description: '분석결과 PDF 다운로드 기능은 현재 개발 중입니다.',
-    });
-  };
-
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="p-4">
@@ -78,40 +67,8 @@ export default function FilterSidebar({
           alt="SMART 스마트건설사업단"
           width={400}
           height={128}
+          className="h-auto w-full"
         />
-      </div>
-      <nav className="flex flex-col gap-1 px-4">
-        <Link
-          href="/"
-          className={cn(
-            'flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-            pathname === '/' && 'bg-sidebar-accent text-sidebar-accent-foreground'
-          )}
-        >
-          <LayoutDashboard className="h-4 w-4" />
-          안전사고 분석 대시보드
-        </Link>
-        <Link
-          href="/analysis"
-          className={cn(
-            'flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-            pathname === '/analysis' &&
-              'bg-sidebar-accent text-sidebar-accent-foreground'
-          )}
-        >
-          <BrainCircuit className="h-4 w-4" />
-          AI 기반 데이터 분석
-        </Link>
-      </nav>
-      <div className="mt-1 px-4">
-        <Button
-          variant="ghost"
-          className="h-auto w-full justify-start gap-3 rounded-lg px-3 py-2 font-normal text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-          onClick={handlePdfDownload}
-        >
-          <FileDown className="h-4 w-4" />
-          분석결과 PDF 다운로드
-        </Button>
       </div>
       <div className="mt-4 px-4">
         <Separator className="bg-sidebar-border" />
