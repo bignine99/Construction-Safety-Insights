@@ -23,20 +23,29 @@ export default function ConstructionSubtypePieChart({ incidents }: ConstructionS
       return acc;
     }, {} as Record<string, number>);
 
-    const sortedData = Object.entries(data)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value);
-      
-    let finalData;
-    const MAX_SLICES = 6; 
+    let dataEntries = Object.entries(data).map(([name, value]) => ({ name, value }));
 
-    if (sortedData.length > MAX_SLICES) {
-      const topData = sortedData.slice(0, MAX_SLICES - 1);
-      const otherValue = sortedData.slice(MAX_SLICES - 1).reduce((sum, item) => sum + item.value, 0);
-      
-      finalData = [...topData, { name: '기타', value: otherValue }];
+    const MAX_SLICES = 6;
+    let finalData;
+
+    if (dataEntries.length > MAX_SLICES) {
+      dataEntries.sort((a, b) => b.value - a.value);
+
+      const topData = dataEntries.slice(0, MAX_SLICES - 1);
+      const otherData = dataEntries.slice(MAX_SLICES - 1);
+
+      const otherValue = otherData.reduce((sum, item) => sum + item.value, 0);
+      const existingOther = topData.find(item => item.name === '기타');
+
+      if (existingOther) {
+        existingOther.value += otherValue;
+        finalData = topData;
+      } else {
+        finalData = [...topData, { name: '기타', value: otherValue }];
+      }
+      finalData.sort((a, b) => b.value - a.value);
     } else {
-      finalData = sortedData;
+      finalData = dataEntries;
     }
 
     const config = finalData.reduce((acc, item, index) => {
