@@ -16,7 +16,6 @@ export default function DashboardMetrics({ incidents }: DashboardMetricsProps) {
   const totalAccidents = incidents.length;
   const totalFatalities = incidents.reduce((acc, i) => acc + i.fatalities, 0);
   const totalInjuries = incidents.reduce((acc, i) => acc + i.injuries, 0);
-  const totalCasualties = totalFatalities + totalInjuries;
   const totalCostDamage = incidents.reduce((acc, i) => acc + i.costDamage, 0);
 
   const averageRiskIndex =
@@ -52,8 +51,8 @@ export default function DashboardMetrics({ incidents }: DashboardMetricsProps) {
         icon={Banknote}
       />
       <KpiCard
-        title="총 사상자 수"
-        value={totalCasualties.toLocaleString()}
+        title="사망자/부상자 비율"
+        value={`${totalFatalities.toLocaleString()} / ${totalInjuries.toLocaleString()}`}
         description="전체 기간"
         icon={Users}
       />
