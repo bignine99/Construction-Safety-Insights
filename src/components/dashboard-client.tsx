@@ -10,6 +10,7 @@ import MonthlyAccidentsChart from './monthly-accidents-chart';
 import ConstructionSubtypePieChart from './construction-subtype-pie-chart';
 import { Card } from './ui/card';
 import ObjectSubtypeBarChart from './object-subtype-bar-chart';
+import ObjectSubtypeCountChart from './object-subtype-count-chart';
 import CauseSubtypeBarChart from './cause-subtype-bar-chart';
 import ResultMainChart from './result-main-chart';
 import CauseResultMatrix from './cause-result-matrix';
@@ -76,14 +77,13 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
               <MonthlyAccidentsChart incidents={filteredIncidents} />
               <ConstructionSubtypePieChart incidents={filteredIncidents} />
               <ObjectSubtypeBarChart incidents={filteredIncidents} />
+              <ObjectSubtypeCountChart incidents={filteredIncidents} />
               <CauseSubtypeBarChart incidents={filteredIncidents} />
               <ResultMainChart incidents={filteredIncidents} />
               <CauseResultMatrix incidents={filteredIncidents} />
-              {Array.from({ length: 2 }).map((_, index) => (
-                <Card key={index} className="flex min-h-[426px] items-center justify-center p-6">
-                  <p className="text-muted-foreground">차트 영역 {index + 7}</p>
-                </Card>
-              ))}
+              <Card className="flex min-h-[426px] items-center justify-center p-6">
+                <p className="text-muted-foreground">차트 영역 8</p>
+              </Card>
             </div>
           </main>
         </SidebarInset>
