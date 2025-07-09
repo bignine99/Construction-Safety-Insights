@@ -44,13 +44,13 @@ export default function ResultMainChart({ incidents }: ResultMainChartProps) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>사고 결과 대분류별 분포</CardTitle>
+      <CardHeader className="p-4 pb-0">
+        <CardTitle className="text-base font-medium">사고 결과 대분류별 분포</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-2">
         <ChartContainer
           config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }}
-          className="h-[220px] w-full"
+          className="h-[160px] w-full"
         >
           <ResponsiveContainer>
             <RadarChart data={chartData}>

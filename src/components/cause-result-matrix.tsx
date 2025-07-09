@@ -56,12 +56,12 @@ export default function CauseResultMatrix({ incidents }: CauseResultMatrixProps)
 
   return (
     <Card className="flex flex-col">
-      <CardHeader>
-        <CardTitle>사고원인-결과 인과관계</CardTitle>
-        <CardDescription>주요 사고 원인에 따른 결과 분포</CardDescription>
+      <CardHeader className="p-4 pb-0">
+        <CardTitle className="text-base font-medium">사고원인-결과 인과관계</CardTitle>
+        <CardDescription className="text-xs">주요 사고 원인에 따른 결과 분포</CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow pt-0">
-        <div className="grid h-full grid-cols-4 gap-x-2 gap-y-0 text-center text-xs md:text-sm">
+      <CardContent className="flex-grow p-2 pt-0">
+        <div className="grid h-full grid-cols-4 gap-x-1 gap-y-0 text-center text-xs">
           {/* Header - empty cell for corner */}
           <div /> 
           {CAUSE_ORDER.map((cause) => (
@@ -78,11 +78,10 @@ export default function CauseResultMatrix({ incidents }: CauseResultMatrixProps)
               </div>
               {CAUSE_ORDER.map((cause) => {
                 const count = matrix[cause]?.[result.key] || 0;
-                // Use square root for sizing to make area perception more accurate
-                const size = count > 0 ? 18 + Math.sqrt(count / maxCount) * 26 : 0; 
+                const size = count > 0 ? 12 + Math.sqrt(count / maxCount) * 20 : 0; 
 
                 return (
-                  <div key={`${cause}-${result.key}`} className="flex h-10 items-center justify-center">
+                  <div key={`${cause}-${result.key}`} className="flex h-8 items-center justify-center">
                     {count > 0 && (
                       <div
                         className="flex items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform hover:scale-110"
@@ -92,7 +91,7 @@ export default function CauseResultMatrix({ incidents }: CauseResultMatrixProps)
                         }}
                         title={`${cause} > ${result.label}: ${count}건`}
                       >
-                        <span className="text-sm font-bold">{count}</span>
+                        <span className="text-xs font-semibold">{count}</span>
                       </div>
                     )}
                   </div>

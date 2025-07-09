@@ -57,14 +57,14 @@ export default function RiskRatioChart({ incidents }: RiskRatioChartProps) {
 
   return (
     <Card className="flex flex-col">
-      <CardHeader>
-        <CardTitle>해당 공종 사고 위험 비율</CardTitle>
-        <CardDescription>전체 대비 상대적 위험도</CardDescription>
+      <CardHeader className="p-4 pb-0">
+        <CardTitle className="text-base font-medium">해당 공종 사고 위험 비율</CardTitle>
+        <CardDescription className="text-xs">전체 대비 상대적 위험도</CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow flex items-center justify-center pb-0">
+      <CardContent className="flex-grow flex items-center justify-center p-2 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square h-full max-h-[180px]"
+          className="mx-auto aspect-square h-full max-h-[140px]"
         >
           <ResponsiveContainer>
             <RadialBarChart
@@ -100,7 +100,7 @@ export default function RiskRatioChart({ incidents }: RiskRatioChartProps) {
                   y="50%"
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  className="fill-foreground text-2xl font-bold"
+                  className="fill-foreground text-xl font-bold"
                 >
                   {`${percentage.toFixed(2)}%`}
                 </text>
