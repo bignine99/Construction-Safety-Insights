@@ -1,10 +1,13 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow anyone to read the incidents data for the dashboard.
-    match /incidents/{incidentId} {
+    // Allow public read access for all documents so the app can display data.
+    // Write access is disabled for security. Data should only be uploaded
+    // via the admin script which bypasses these rules.
+    match /{document=**} {
       allow read: if true;
-      allow write: if false; // Disallow writes from the browser for security.
+      allow write: if false;
     }
   }
 }
