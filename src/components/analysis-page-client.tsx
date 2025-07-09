@@ -59,7 +59,7 @@ export default function AnalysisPageClient({
           />
         </Sidebar>
         <SidebarInset>
-          <div className="w-full max-w-none flex flex-1 flex-col gap-6 p-4 md:p-6">
+          <div className="w-full max-w-none flex flex-1 flex-col gap-6 p-2 md:p-4">
             <PageHeader
               title="AI 기반 안전사고 데이터 분석"
               subtitle="AI 기반 사건사고 데이터베이스 심층 분석"

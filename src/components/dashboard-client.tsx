@@ -67,7 +67,7 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
           />
         </Sidebar>
         <SidebarInset>
-          <div className="w-full max-w-none flex flex-1 flex-col gap-4 p-4 md:p-6">
+          <div className="w-full max-w-none flex flex-1 flex-col gap-4 p-2 md:p-4">
             <PageHeader 
               title="안전사고 분석 대시보드"
               subtitle="WBS-RBS 기반 위험정보 분석 시스템"
