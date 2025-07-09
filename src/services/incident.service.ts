@@ -1,12 +1,12 @@
 import type { Incident } from '@/lib/types';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 
 export async function getIncidents(): Promise<Incident[]> {
   try {
     const incidentsCollection = collection(db, 'incidents');
-    const q = query(incidentsCollection, orderBy('dateTime', 'desc'));
-    const querySnapshot = await getDocs(q);
+    // For debugging, use a simpler query first, then sort in code.
+    const querySnapshot = await getDocs(incidentsCollection);
 
     if (querySnapshot.empty) {
       console.log('No incidents found in Firestore. Returning empty array.');
@@ -14,8 +14,6 @@ export async function getIncidents(): Promise<Incident[]> {
     }
 
     const incidents: Incident[] = querySnapshot.docs.map(doc => {
-      // Firestore는 doc.data()가 Incident 타입임을 보장하지 않으므로,
-      // 필요한 모든 필드를 명시적으로 캐스팅하거나 확인하는 것이 좋습니다.
       const data = doc.data();
       return {
         id: doc.id,
@@ -42,10 +40,18 @@ export async function getIncidents(): Promise<Incident[]> {
       } as Incident;
     });
     
+    // Sort incidents by date descending in the code
+    incidents.sort((a, b) => {
+      try {
+        return new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime();
+      } catch (e) {
+        return 0;
+      }
+    });
+
     return incidents;
   } catch (error) {
     console.error('Error getting incidents from Firestore:', error);
-    // Firestore에서 오류 발생 시 빈 배열을 반환하여 앱의 나머지 부분이 중단되지 않도록 합니다.
     return [];
   }
 }
