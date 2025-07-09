@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BrainCircuit, FileDown, LayoutDashboard, Database } from 'lucide-react';
+import { BrainCircuit, FileDown, LayoutDashboard } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -38,16 +38,6 @@ export function DashboardNav() {
         <Link href="/analysis">
           <BrainCircuit />
           AI 기반 데이터 분석
-        </Link>
-      </Button>
-      <Button
-        asChild
-        variant={pathname === '/admin' ? 'default' : 'outline'}
-        className="flex-1 justify-center min-w-[200px]"
-      >
-        <Link href="/admin">
-          <Database />
-          데이터 관리
         </Link>
       </Button>
        <Button
