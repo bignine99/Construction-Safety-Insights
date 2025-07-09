@@ -86,34 +86,32 @@ export default function AnalysisPageClient({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
-        <Sidebar>
-          <FilterSidebar
-            filters={filters}
-            onFilterChange={setFilters}
-            projectOwners={uniqueProjectOwners}
-            projectTypes={uniqueProjectTypes}
-            constructionTypeMains={uniqueConstructionTypeMains}
-            constructionTypeSubs={uniqueConstructionTypeSubs}
-            objectMains={uniqueObjectMains}
-            causeMains={uniqueCauseMains}
-            resultMains={uniqueResultMains}
+      <Sidebar>
+        <FilterSidebar
+          filters={filters}
+          onFilterChange={setFilters}
+          projectOwners={uniqueProjectOwners}
+          projectTypes={uniqueProjectTypes}
+          constructionTypeMains={uniqueConstructionTypeMains}
+          constructionTypeSubs={uniqueConstructionTypeSubs}
+          objectMains={uniqueObjectMains}
+          causeMains={uniqueCauseMains}
+          resultMains={uniqueResultMains}
+        />
+      </Sidebar>
+      <SidebarInset>
+        <div className="w-full max-w-none flex flex-1 flex-col gap-6 p-2">
+          <PageHeader
+            title="AI 기반 안전사고 데이터 분석"
+            subtitle="AI 기반 사건사고 데이터베이스 심층 분석"
           />
-        </Sidebar>
-        <SidebarInset>
-          <div className="w-full max-w-none flex flex-1 flex-col gap-6 p-2">
-            <PageHeader
-              title="AI 기반 안전사고 데이터 분석"
-              subtitle="AI 기반 사건사고 데이터베이스 심층 분석"
-            />
-            <DashboardNav />
-            <div className="flex flex-1 flex-col gap-6">
-              <FilteredIncidentsTable incidents={filteredIncidents} />
-              <AnalysisClient incidents={filteredIncidents} />
-            </div>
+          <DashboardNav />
+          <div className="flex flex-1 flex-col gap-6">
+            <FilteredIncidentsTable incidents={filteredIncidents} />
+            <AnalysisClient incidents={filteredIncidents} />
           </div>
-        </SidebarInset>
-      </div>
+        </div>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

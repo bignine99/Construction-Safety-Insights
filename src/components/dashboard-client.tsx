@@ -52,41 +52,39 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
-        <Sidebar>
-          <FilterSidebar
-            filters={filters}
-            onFilterChange={setFilters}
-            projectOwners={uniqueProjectOwners}
-            projectTypes={uniqueProjectTypes}
-            constructionTypeMains={uniqueConstructionTypeMains}
-            constructionTypeSubs={uniqueConstructionTypeSubs}
-            objectMains={uniqueObjectMains}
-            causeMains={uniqueCauseMains}
-            resultMains={uniqueResultMains}
+      <Sidebar>
+        <FilterSidebar
+          filters={filters}
+          onFilterChange={setFilters}
+          projectOwners={uniqueProjectOwners}
+          projectTypes={uniqueProjectTypes}
+          constructionTypeMains={uniqueConstructionTypeMains}
+          constructionTypeSubs={uniqueConstructionTypeSubs}
+          objectMains={uniqueObjectMains}
+          causeMains={uniqueCauseMains}
+          resultMains={uniqueResultMains}
+        />
+      </Sidebar>
+      <SidebarInset>
+        <div className="w-full max-w-none flex flex-1 flex-col gap-4 p-2">
+          <PageHeader 
+            title="안전사고 분석 대시보드"
+            subtitle="WBS-RBS 기반 위험정보 분석 시스템"
           />
-        </Sidebar>
-        <SidebarInset>
-          <div className="w-full max-w-none flex flex-1 flex-col gap-4 p-2">
-            <PageHeader 
-              title="안전사고 분석 대시보드"
-              subtitle="WBS-RBS 기반 위험정보 분석 시스템"
-            />
-            <DashboardNav />
-            <DashboardMetrics incidents={filteredIncidents} />
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <MonthlyAccidentsChart incidents={filteredIncidents} />
-              <ConstructionSubtypePieChart incidents={filteredIncidents} />
-              <ObjectSubtypeBarChart incidents={filteredIncidents} />
-              <ObjectSubtypeCountChart incidents={filteredIncidents} />
-              <CauseSubtypeBarChart incidents={filteredIncidents} />
-              <ResultMainChart incidents={filteredIncidents} />
-              <CauseResultMatrix incidents={filteredIncidents} />
-              <RiskRatioChart incidents={filteredIncidents} />
-            </div>
+          <DashboardNav />
+          <DashboardMetrics incidents={filteredIncidents} />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <MonthlyAccidentsChart incidents={filteredIncidents} />
+            <ConstructionSubtypePieChart incidents={filteredIncidents} />
+            <ObjectSubtypeBarChart incidents={filteredIncidents} />
+            <ObjectSubtypeCountChart incidents={filteredIncidents} />
+            <CauseSubtypeBarChart incidents={filteredIncidents} />
+            <ResultMainChart incidents={filteredIncidents} />
+            <CauseResultMatrix incidents={filteredIncidents} />
+            <RiskRatioChart incidents={filteredIncidents} />
           </div>
-        </SidebarInset>
-      </div>
+        </div>
+      </SidebarInset>
     </SidebarProvider>
   );
 }
