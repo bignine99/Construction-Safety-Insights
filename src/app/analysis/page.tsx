@@ -72,8 +72,8 @@ export default async function AnalysisPage() {
         <SidebarInset>
           <main className="flex flex-1 flex-col gap-6 p-4 md:p-6">
             <PageHeader
-              title="AI 사고 분석"
-              subtitle="사고 설명 데이터를 기반으로 AI가 핵심 테마를 분석하고 예방 대책을 제안합니다."
+              title="AI 기반 안전사고 데이터 분석"
+              subtitle="AI 기반 사건사고 데이터베이스 심층 분석"
             />
             <DashboardNav />
             <div className="flex-1">
