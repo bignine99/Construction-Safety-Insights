@@ -4,7 +4,6 @@ import type { Incident } from '@/lib/types';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -28,7 +27,7 @@ export default function FilteredIncidentsTable({ incidents }: FilteredIncidentsT
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>필터링된 사고 데이터 목록</CardTitle>
+          <CardTitle className="text-primary">필터링된 사고 데이터 목록</CardTitle>
         </div>
         <Badge variant="outline" className="text-base">
           총 {incidents.length.toLocaleString()}건
