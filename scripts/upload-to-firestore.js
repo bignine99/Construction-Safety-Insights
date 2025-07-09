@@ -1,31 +1,40 @@
 // This script reads your local incidents.json file and uploads it to your Firestore database.
-// To run it, use the command: npm run upload:firestore
+// To run it, you must first have a serviceAccountKey.json file in the root directory.
+// Then, use the command: npm run upload:firestore
 
-require('dotenv').config({ path: './.env' });
-const { initializeApp } = require('firebase/app');
-const { getFirestore, collection, writeBatch, doc } = require('firebase/firestore');
+const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 
-// Your web app's Firebase configuration from .env file
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
-
-if (!firebaseConfig.projectId) {
-    console.error("Firebase configuration is missing. Make sure your .env file is set up correctly.");
-    process.exit(1);
+// --- Path to your service account key file ---
+// This key gives the script admin privileges to bypass security rules.
+let serviceAccount;
+try {
+  serviceAccount = require('../serviceAccountKey.json');
+} catch (error) {
+  console.error(
+    'Error: `serviceAccountKey.json` not found in the root directory.'
+  );
+  console.error(
+    'Please download it from your Firebase project settings (Service Accounts tab) and place it in the project root.'
+  );
+  process.exit(1);
 }
 
+// --- Your project ID from the service account key file ---
+const projectId = serviceAccount.project_id;
+if (!projectId) {
+  console.error('Firebase project ID not found in service account key file.');
+  process.exit(1);
+}
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// Initialize Firebase Admin SDK
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  projectId: projectId,
+});
+
+const db = admin.firestore();
 
 // Helper functions to map raw JSON data to our Incident type
 function cleanConstructionType(type) {
@@ -78,35 +87,37 @@ async function uploadData() {
     const totalIncidents = incidents.length;
     console.log(`Found ${totalIncidents} incidents to upload.`);
 
-    const incidentsCollection = collection(db, 'incidents');
-    const CHUNK_SIZE = 100; // Safe chunk size
-    const DELAY_MS = 1500;   // Safe delay to avoid rate limiting
+    const incidentsCollection = db.collection('incidents');
+    const CHUNK_SIZE = 400; // Admin SDK can handle larger batches safely.
+    const DELAY_MS = 1000;
     const totalChunks = Math.ceil(totalIncidents / CHUNK_SIZE);
-    
-    console.log(`Uploading in ${totalChunks} chunks of up to ${CHUNK_SIZE} documents each.`);
+
+    console.log(
+      `Uploading in ${totalChunks} chunks of up to ${CHUNK_SIZE} documents each.`
+    );
 
     for (let i = 0; i < totalChunks; i++) {
-      const batch = writeBatch(db);
+      const batch = db.batch();
       const chunk = incidents.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
-      
+
       chunk.forEach((incident) => {
-        const docRef = doc(incidentsCollection, incident.id);
+        const docRef = incidentsCollection.doc(incident.id);
         batch.set(docRef, incident);
       });
-      
+
       await batch.commit();
       console.log(`Chunk ${i + 1}/${totalChunks} uploaded successfully.`);
-      
+
       if (i < totalChunks - 1) {
-        console.log(`Waiting for ${DELAY_MS / 1000} seconds before next chunk...`);
-        await new Promise(resolve => setTimeout(resolve, DELAY_MS));
+        console.log(
+          `Waiting for ${DELAY_MS / 1000} seconds before next chunk...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
       }
     }
 
     console.log('🎉 All data uploaded successfully!');
-    // The script will exit automatically when all async operations are done.
     process.exit(0);
-
   } catch (error) {
     console.error('An error occurred during upload:', error);
     process.exit(1);
