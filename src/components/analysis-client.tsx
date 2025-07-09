@@ -37,8 +37,8 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader>
-          <CardTitle>AI 기반 데이터 분석</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-primary">AI 기반 데이터 분석</CardTitle>
+          <CardDescription className="text-primary/90">
             AI를 통해 필터링된 데이터를 분석하여 핵심 테마, 재발방지대책, 작업지시사항을 도출합니다.
           </CardDescription>
         </CardHeader>
@@ -114,11 +114,11 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-primary">
             <HelpCircle className="h-6 w-6" />
             AI 질문 및 분석 창
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-primary/90">
             건설 안전에 대한 질문을 하거나, 현장 사진 또는 작업일보를 업로드하여 분석을 요청하세요.
           </CardDescription>
         </CardHeader>

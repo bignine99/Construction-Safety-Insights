@@ -28,8 +28,7 @@ export default function FilteredIncidentsTable({ incidents }: FilteredIncidentsT
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>DB</CardTitle>
-          <CardDescription>필터링된 사고 데이터 목록입니다.</CardDescription>
+          <CardTitle>필터링된 사고 데이터 목록</CardTitle>
         </div>
         <Badge variant="outline" className="text-base">
           총 {incidents.length.toLocaleString()}건
