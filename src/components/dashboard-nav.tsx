@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BrainCircuit, FileDown, LayoutDashboard } from 'lucide-react';
+import { BrainCircuit, FileDown, LayoutDashboard, Database } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -19,11 +19,11 @@ export function DashboardNav() {
   };
 
   return (
-    <div className="flex gap-2 rounded-lg bg-muted/50 p-1">
+    <div className="flex flex-wrap gap-2 rounded-lg bg-muted/50 p-1">
       <Button
         asChild
         variant={pathname === '/' ? 'default' : 'outline'}
-        className="flex-1 justify-center"
+        className="flex-1 justify-center min-w-[200px]"
       >
         <Link href="/">
           <LayoutDashboard />
@@ -33,7 +33,7 @@ export function DashboardNav() {
       <Button
         asChild
         variant={pathname === '/analysis' ? 'default' : 'outline'}
-        className="flex-1 justify-center"
+        className="flex-1 justify-center min-w-[200px]"
       >
         <Link href="/analysis">
           <BrainCircuit />
@@ -41,9 +41,19 @@ export function DashboardNav() {
         </Link>
       </Button>
       <Button
+        asChild
+        variant={pathname === '/admin' ? 'default' : 'outline'}
+        className="flex-1 justify-center min-w-[200px]"
+      >
+        <Link href="/admin">
+          <Database />
+          데이터 관리
+        </Link>
+      </Button>
+       <Button
         variant="outline"
         onClick={handlePdfDownload}
-        className="flex-1 justify-center"
+        className="flex-1 justify-center min-w-[200px]"
       >
         <FileDown />
         분석결과 PDF 다운로드
