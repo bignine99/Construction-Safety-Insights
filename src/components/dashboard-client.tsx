@@ -67,7 +67,7 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
           />
         </Sidebar>
         <SidebarInset>
-          <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+          <div className="flex flex-1 flex-col gap-4 p-4">
             <PageHeader 
               title="안전사고 분석 대시보드"
               subtitle="WBS-RBS 기반 위험정보 분석 시스템"
@@ -84,7 +84,7 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
               <CauseResultMatrix incidents={filteredIncidents} />
               <RiskRatioChart incidents={filteredIncidents} />
             </div>
-          </main>
+          </div>
         </SidebarInset>
       </div>
     </SidebarProvider>
