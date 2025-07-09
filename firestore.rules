@@ -1,10 +1,7 @@
-
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow public read access to the incidents collection.
-    // This allows your app to display the data.
+    // Allow anyone to read the incidents data for the dashboard.
     match /incidents/{incidentId} {
       allow read: if true;
       allow write: if false; // Disallow writes from the browser for security.
