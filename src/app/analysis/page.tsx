@@ -14,6 +14,14 @@ export const dynamic = 'force-dynamic';
 export default async function AnalysisPage() {
   const incidents = await getIncidents();
 
+  const uniqueProjectOwners = [
+    'all',
+    ...Array.from(new Set(incidents.map((i) => i.projectOwner).filter(Boolean))),
+  ];
+  const uniqueProjectTypes = [
+    'all',
+    ...Array.from(new Set(incidents.map((i) => i.projectType).filter(Boolean))),
+  ];
   const uniqueConstructionTypeMains = [
     'all',
     ...Array.from(new Set(incidents.map((i) => i.constructionTypeMain).filter(Boolean))),
@@ -36,6 +44,8 @@ export default async function AnalysisPage() {
   ];
 
   const filters = {
+    projectOwner: 'all',
+    projectType: 'all',
     constructionTypeMain: 'all',
     constructionTypeSub: 'all',
     objectMain: 'all',
@@ -50,6 +60,8 @@ export default async function AnalysisPage() {
           <FilterSidebar
             filters={filters}
             onFilterChange={() => {}} // No-op for this page
+            projectOwners={uniqueProjectOwners}
+            projectTypes={uniqueProjectTypes}
             constructionTypeMains={uniqueConstructionTypeMains}
             constructionTypeSubs={uniqueConstructionTypeSubs}
             objectMains={uniqueObjectMains}

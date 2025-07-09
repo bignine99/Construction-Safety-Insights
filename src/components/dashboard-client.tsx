@@ -18,6 +18,8 @@ import { DashboardNav } from './dashboard-nav';
 
 export default function DashboardClient({ incidents }: { incidents: Incident[] }) {
   const [filters, setFilters] = useState({
+    projectOwner: 'all',
+    projectType: 'all',
     constructionTypeMain: 'all',
     constructionTypeSub: 'all',
     objectMain: 'all',
@@ -27,17 +29,21 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
 
   const filteredIncidents = useMemo(() => {
     return incidents.filter(incident => {
-      const { constructionTypeMain, constructionTypeSub, objectMain, causeMain, resultMain } = filters;
+      const { projectOwner, projectType, constructionTypeMain, constructionTypeSub, objectMain, causeMain, resultMain } = filters;
+      const projectOwnerMatch = projectOwner === 'all' || incident.projectOwner === projectOwner;
+      const projectTypeMatch = projectType === 'all' || incident.projectType === projectType;
       const constructionTypeMainMatch = constructionTypeMain === 'all' || incident.constructionTypeMain === constructionTypeMain;
       const constructionTypeSubMatch = constructionTypeSub === 'all' || incident.constructionTypeSub === constructionTypeSub;
       const objectMainMatch = objectMain === 'all' || incident.objectMain === objectMain;
       const causeMainMatch = causeMain === 'all' || incident.causeMain === causeMain;
       const resultMainMatch = resultMain === 'all' || incident.resultMain === resultMain;
       
-      return constructionTypeMainMatch && constructionTypeSubMatch && objectMainMatch && causeMainMatch && resultMainMatch;
+      return projectOwnerMatch && projectTypeMatch && constructionTypeMainMatch && constructionTypeSubMatch && objectMainMatch && causeMainMatch && resultMainMatch;
     });
   }, [filters, incidents]);
 
+  const uniqueProjectOwners = useMemo(() => ['all', ...Array.from(new Set(incidents.map(i => i.projectOwner).filter(Boolean)))], [incidents]);
+  const uniqueProjectTypes = useMemo(() => ['all', ...Array.from(new Set(incidents.map(i => i.projectType).filter(Boolean)))], [incidents]);
   const uniqueConstructionTypeMains = useMemo(() => ['all', ...Array.from(new Set(incidents.map(i => i.constructionTypeMain).filter(Boolean)))], [incidents]);
   const uniqueConstructionTypeSubs = useMemo(() => ['all', ...Array.from(new Set(incidents.map(i => i.constructionTypeSub).filter(Boolean)))], [incidents]);
   const uniqueObjectMains = useMemo(() => ['all', ...Array.from(new Set(incidents.map(i => i.objectMain).filter(Boolean)))], [incidents]);
@@ -51,6 +57,8 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
           <FilterSidebar
             filters={filters}
             onFilterChange={setFilters}
+            projectOwners={uniqueProjectOwners}
+            projectTypes={uniqueProjectTypes}
             constructionTypeMains={uniqueConstructionTypeMains}
             constructionTypeSubs={uniqueConstructionTypeSubs}
             objectMains={uniqueObjectMains}

@@ -17,6 +17,8 @@ import { useToast } from '@/hooks/use-toast';
 
 interface FilterSidebarProps {
   filters: {
+    projectOwner: string;
+    projectType: string;
     constructionTypeMain: string;
     constructionTypeSub: string;
     objectMain: string;
@@ -24,6 +26,8 @@ interface FilterSidebarProps {
     resultMain: string;
   };
   onFilterChange: (filters: any) => void;
+  projectOwners: string[];
+  projectTypes: string[];
   constructionTypeMains: string[];
   constructionTypeSubs: string[];
   objectMains: string[];
@@ -34,6 +38,8 @@ interface FilterSidebarProps {
 export default function FilterSidebar({
   filters,
   onFilterChange,
+  projectOwners,
+  projectTypes,
   constructionTypeMains,
   constructionTypeSubs,
   objectMains,
@@ -44,6 +50,8 @@ export default function FilterSidebar({
 
   const handleReset = () => {
     onFilterChange({
+      projectOwner: 'all',
+      projectType: 'all',
       constructionTypeMain: 'all',
       constructionTypeSub: 'all',
       objectMain: 'all',
@@ -81,6 +89,50 @@ export default function FilterSidebar({
           </Button>
         </div>
         <div className="flex-1 space-y-6">
+          <div>
+            <Label htmlFor="projectOwner" className="text-sm font-medium">
+              특성 분류
+            </Label>
+            <Select
+              value={filters.projectOwner}
+              onValueChange={(value) =>
+                onFilterChange({ ...filters, projectOwner: value })
+              }
+            >
+              <SelectTrigger id="projectOwner" className="mt-1">
+                <SelectValue placeholder="전체" />
+              </SelectTrigger>
+              <SelectContent>
+                {projectOwners.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type === 'all' ? '전체' : type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="projectType" className="text-sm font-medium">
+              용도 분류
+            </Label>
+            <Select
+              value={filters.projectType}
+              onValueChange={(value) =>
+                onFilterChange({ ...filters, projectType: value })
+              }
+            >
+              <SelectTrigger id="projectType" className="mt-1">
+                <SelectValue placeholder="전체" />
+              </SelectTrigger>
+              <SelectContent>
+                {projectTypes.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type === 'all' ? '전체' : type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div>
             <Label
               htmlFor="constructionTypeMain"
