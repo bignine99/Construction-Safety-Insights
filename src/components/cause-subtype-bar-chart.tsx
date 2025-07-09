@@ -27,10 +27,10 @@ export default function CauseSubtypeBarChart({ incidents }: CauseSubtypeBarChart
 
   return (
     <Card>
-      <CardHeader className="p-4 pb-0">
-        <CardTitle className="text-base font-medium">사고 원인별 사고 건수</CardTitle>
+      <CardHeader className="items-center p-4 pb-2">
+        <CardTitle>사고 원인별 사고 건수</CardTitle>
       </CardHeader>
-      <CardContent className="p-2">
+      <CardContent className="p-2 pt-0">
         <ChartContainer config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }} className="h-[160px] w-full">
           <ResponsiveContainer>
             <RechartsBarChart 

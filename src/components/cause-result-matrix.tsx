@@ -56,8 +56,8 @@ export default function CauseResultMatrix({ incidents }: CauseResultMatrixProps)
 
   return (
     <Card className="flex flex-col">
-      <CardHeader className="p-4 pb-0">
-        <CardTitle className="text-base font-medium">사고원인-결과 인과관계</CardTitle>
+      <CardHeader className="items-center p-4 pb-2">
+        <CardTitle>사고원인-결과 인과관계</CardTitle>
         <CardDescription className="text-xs">주요 사고 원인에 따른 결과 분포</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow p-2 pt-0">

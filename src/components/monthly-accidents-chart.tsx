@@ -27,10 +27,10 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="items-center p-4 pb-2">
         <CardTitle>년도별 사고 발생 현황</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-2 pt-0">
         <ChartContainer config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }} className="h-[220px] w-full">
           <ResponsiveContainer>
             <LineChart

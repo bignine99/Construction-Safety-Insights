@@ -57,8 +57,8 @@ export default function RiskRatioChart({ incidents }: RiskRatioChartProps) {
 
   return (
     <Card className="flex flex-col">
-      <CardHeader className="p-4 pb-0">
-        <CardTitle className="text-base font-medium">해당 공종 사고 위험 비율</CardTitle>
+      <CardHeader className="items-center p-4 pb-2">
+        <CardTitle>해당 공종 사고 위험 비율</CardTitle>
         <CardDescription className="text-xs">전체 대비 상대적 위험도</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow flex items-center justify-center p-2 pb-0">
