@@ -43,10 +43,10 @@ const MAIN_TYPE_POSITIONS: Record<
   string,
   { x: number; y: number; color: string; radius: number }
 > = {
-  건축: { x: 0.3, y: 0.3, color: 'hsl(var(--chart-1))', radius: 0.25 },
-  토목: { x: 0.75, y: 0.3, color: 'hsl(var(--chart-2))', radius: 0.15 },
-  설비: { x: 0.3, y: 0.75, color: 'hsl(var(--chart-3))', radius: 0.15 },
-  기타: { x: 0.75, y: 0.75, color: 'hsl(var(--chart-5))', radius: 0.15 },
+  건축: { x: 0.35, y: 0.35, color: 'hsl(var(--chart-1))', radius: 0.22 },
+  토목: { x: 0.75, y: 0.35, color: 'hsl(var(--chart-2))', radius: 0.13 },
+  설비: { x: 0.35, y: 0.75, color: 'hsl(var(--chart-3))', radius: 0.13 },
+  기타: { x: 0.75, y: 0.75, color: 'hsl(var(--chart-5))', radius: 0.13 },
 };
 
 const CustomTooltip = ({ active, payload }: any) => {
@@ -131,7 +131,7 @@ export default function RiskRatioChart({
       <CardContent className="flex-grow p-0">
         <ChartContainer config={{}} className="w-full h-full min-h-[250px]">
           <ResponsiveContainer>
-            <ScatterChart margin={{ top: 30, right: 20, bottom: 20, left: 20 }}>
+            <ScatterChart margin={{ top: 30, right: 30, bottom: 20, left: 30 }}>
               <XAxis
                 type="number"
                 dataKey="x"
