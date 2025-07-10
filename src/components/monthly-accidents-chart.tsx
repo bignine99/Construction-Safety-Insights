@@ -32,6 +32,7 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
         if (!acc[key]) {
           acc[key] = { month: key, '사고 건수': 0 };
         }
+        // 사고 건수를 1씩 증가시킵니다. (위험지수가 아닌)
         acc[key]['사고 건수']++;
       } catch (e) {
         // 날짜 파싱 중 오류가 발생한 데이터는 무시합니다.
@@ -79,6 +80,7 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                 label={{ value: '사고 건수', angle: -90, position: 'insideLeft', offset: 10, fill: 'hsl(var(--muted-foreground))' }}
                 domain={[0, 'auto']}
+                allowDecimals={false}
               />
               <Tooltip
                 cursor={{ stroke: 'hsl(var(--border))', strokeDasharray: '3 3' }}
