@@ -151,7 +151,7 @@ export default function RiskRatioChart({
               <ZAxis
                 type="number"
                 dataKey="z"
-                range={[200, 4000]}
+                range={[500, 10000]}
                 domain={[0, maxCount > 0 ? maxCount : 1]}
               />
 
