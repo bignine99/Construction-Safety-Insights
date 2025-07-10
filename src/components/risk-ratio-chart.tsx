@@ -2,7 +2,6 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { scaleLinear } from 'd3-scale';
 import {
   ResponsiveContainer,
   ScatterChart,
@@ -13,6 +12,7 @@ import {
   ZAxis,
   Cell,
   LabelList,
+  ReferenceArea,
 } from 'recharts';
 import type { Incident } from '@/lib/types';
 import {
@@ -171,7 +171,13 @@ export default function RiskRatioChart({
                 axisLine={false}
                 hide
               />
-              <ZAxis type="number" dataKey="z" range={[100, 2000]} domain={[0, maxCount > 0 ? maxCount : 1]} />
+              <ZAxis type="number" dataKey="z" range={[100, 3000]} domain={[0, maxCount > 0 ? maxCount : 1]} />
+              
+              <ReferenceArea x1={0.05} x2={0.48} y1={0.05} y2={0.55} strokeDasharray="3 3" stroke="hsl(var(--border))" fill="hsl(var(--accent)/0.2)" radius={12} />
+              <ReferenceArea x1={0.52} x2={0.95} y1={0.05} y2={0.55} strokeDasharray="3 3" stroke="hsl(var(--border))" fill="hsl(var(--accent)/0.2)" radius={12} />
+              <ReferenceArea x1={0.05} x2={0.48} y1={0.58} y2={0.95} strokeDasharray="3 3" stroke="hsl(var(--border))" fill="hsl(var(--accent)/0.2)" radius={12} />
+              <ReferenceArea x1={0.52} x2={0.95} y1={0.58} y2={0.95} strokeDasharray="3 3" stroke="hsl(var(--border))" fill="hsl(var(--accent)/0.2)" radius={12} />
+
               <Tooltip cursor={{ strokeDasharray: '3 3' }} content={<CustomTooltip />} />
               
               <Scatter data={bubbleData}>
