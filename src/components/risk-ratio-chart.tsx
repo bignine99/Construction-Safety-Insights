@@ -160,6 +160,22 @@ export default function RiskRatioChart({
                 content={<CustomTooltip />}
               />
 
+              <Scatter data={bubbleData} isAnimationActive={false}>
+                {bubbleData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.fill}
+                    stroke={
+                      entry.isActive
+                        ? 'hsl(var(--primary-foreground))'
+                        : 'hsl(var(--primary))'
+                    }
+                    strokeWidth={entry.isActive ? 3 : 1}
+                    style={{ opacity: entry.isActive ? 1 : 0.6 }}
+                  />
+                ))}
+              </Scatter>
+
               {Object.entries(MAIN_TYPE_POSITIONS).map(([name, { x, y }]) => (
                 <Scatter
                   key={name}
@@ -176,22 +192,6 @@ export default function RiskRatioChart({
                   />
                 </Scatter>
               ))}
-
-              <Scatter data={bubbleData} isAnimationActive={false}>
-                {bubbleData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={entry.fill}
-                    stroke={
-                      entry.isActive
-                        ? 'hsl(var(--primary-foreground))'
-                        : 'hsl(var(--primary))'
-                    }
-                    strokeWidth={entry.isActive ? 3 : 1}
-                    style={{ opacity: entry.isActive ? 1 : 0.6 }}
-                  />
-                ))}
-              </Scatter>
             </ScatterChart>
           </ResponsiveContainer>
         </ChartContainer>
