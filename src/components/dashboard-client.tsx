@@ -7,7 +7,7 @@ import DashboardMetrics from '@/components/dashboard-metrics';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import PageHeader from './page-header';
 import MonthlyAccidentsChart from './monthly-accidents-chart';
-import ConstructionSubtypePieChart from './construction-subtype-pie-chart';
+import ConstructionSubtypeTreemap from './construction-subtype-pie-chart';
 import ObjectSubtypeBarChart from './object-subtype-bar-chart';
 import ObjectSubtypeCountChart from './object-subtype-count-chart';
 import CauseSubtypeBarChart from './cause-subtype-bar-chart';
@@ -175,7 +175,7 @@ export default function DashboardClient({
             <DashboardMetrics incidents={filteredIncidents} />
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               <MonthlyAccidentsChart incidents={filteredIncidents} />
-              <ConstructionSubtypePieChart incidents={filteredIncidents} />
+              <ConstructionSubtypeTreemap incidents={filteredIncidents} />
               <ObjectSubtypeBarChart incidents={filteredIncidents} />
               <ObjectSubtypeCountChart incidents={filteredIncidents} />
               <CauseSubtypeBarChart incidents={filteredIncidents} />
