@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts';
 import type { Incident } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
 interface ConstructionSubtypeTreemapProps {
   incidents: Incident[];
@@ -85,24 +85,26 @@ export default function ConstructionSubtypeTreemap({ incidents }: ConstructionSu
         <CardTitle>중공종별 사고 비율</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow p-2 pt-0">
-        <ResponsiveContainer width="100%" height="100%">
-            <Treemap
-                data={chartData}
-                dataKey="value"
-                stroke="#fff"
-                fill="hsl(var(--primary))"
-                content={<CustomizedContent />}
-                aspectRatio={4 / 3}
-            >
-                <Tooltip 
-                    content={<ChartTooltipContent 
-                        formatter={(value, name) => `${(value as number).toLocaleString()}건`}
-                        labelFormatter={(label) => `중공종: ${label}`}
-                        indicator="dot"
-                    />} 
-                />
-            </Treemap>
-        </ResponsiveContainer>
+        <ChartContainer config={{}} className="h-full w-full">
+          <ResponsiveContainer>
+              <Treemap
+                  data={chartData}
+                  dataKey="value"
+                  stroke="#fff"
+                  fill="hsl(var(--primary))"
+                  content={<CustomizedContent />}
+                  aspectRatio={4 / 3}
+              >
+                  <Tooltip 
+                      content={<ChartTooltipContent 
+                          formatter={(value, name) => `${(value as number).toLocaleString()}건`}
+                          labelFormatter={(label) => `중공종: ${label}`}
+                          indicator="dot"
+                      />} 
+                  />
+              </Treemap>
+          </ResponsiveContainer>
+        </ChartContainer>
       </CardContent>
     </Card>
   );
