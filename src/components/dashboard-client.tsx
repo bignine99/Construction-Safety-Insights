@@ -172,9 +172,9 @@ export default function DashboardClient({
             />
             <DashboardNav />
           </div>
-          <div className="flex flex-1 flex-col gap-6 overflow-auto p-6">
+          <div className="flex flex-1 flex-col overflow-auto p-6 pt-2">
             <DashboardMetrics incidents={filteredIncidents} />
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               <AnnualAccidentsChart incidents={filteredIncidents} />
               <MonthlyAccidentTrendChart incidents={filteredIncidents} />
               <ConstructionSubtypeTreemap incidents={filteredIncidents} />
