@@ -84,7 +84,7 @@ export default function CauseResultMatrix({ incidents }: CauseResultMatrixProps)
         <CardDescription className="text-xs">주요 사고 원인에 따른 결과 분포</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow p-2 pt-0">
-        <ChartContainer config={{}} className="h-[250px] w-full">
+        <ChartContainer config={{}} className="h-full w-full">
             <ResponsiveContainer width="100%" height="100%">
             <ScatterChart
                 margin={{
