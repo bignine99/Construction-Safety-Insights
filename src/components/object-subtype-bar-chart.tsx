@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Bar, BarChart as RechartsBarChart, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { Bar, BarChart as RechartsBarChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { Incident } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
@@ -20,7 +20,7 @@ export default function ObjectSubtypeBarChart({ incidents }: ObjectSubtypeBarCha
 
     return Object.entries(dataByWorkType)
       .map(([name, value]) => ({ name, '사고위험지수': parseFloat(value.toFixed(1)) }))
-      .sort((a, b) => a['사고위험지수'] - b['사고위험지수']);
+      .sort((a, b) => b['사고위험지수'] - a['사고위험지수']);
   }, [incidents]);
 
   return (
@@ -58,7 +58,11 @@ export default function ObjectSubtypeBarChart({ incidents }: ObjectSubtypeBarCha
                 cursor={{ fill: 'hsl(var(--accent) / 0.2)' }}
                 content={<ChartTooltipContent indicator="line" hideLabel />}
               />
-              <Bar dataKey="사고위험지수" fill="hsl(var(--chart-3))" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="사고위험지수" radius={[0, 4, 4, 0]}>
+                {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={index === 0 ? 'hsl(var(--chart-3))' : 'hsl(var(--muted-foreground)/30)'} />
+                ))}
+              </Bar>
             </RechartsBarChart>
           </ResponsiveContainer>
         </ChartContainer>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Bar, BarChart as RechartsBarChart, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { Bar, BarChart as RechartsBarChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { Incident } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
@@ -21,8 +21,7 @@ export default function CauseSubtypeBarChart({ incidents }: CauseSubtypeBarChart
     return Object.entries(data)
       .map(([name, value]) => ({ name, '사고 건수': value }))
       .sort((a, b) => b['사고 건수'] - a['사고 건수'])
-      .slice(0, 9)
-      .sort((a, b) => a['사고 건수'] - b['사고 건수']);
+      .slice(0, 9);
   }, [incidents]);
 
   return (
@@ -59,7 +58,11 @@ export default function CauseSubtypeBarChart({ incidents }: CauseSubtypeBarChart
                 cursor={{ fill: 'hsl(var(--accent) / 0.2)' }}
                 content={<ChartTooltipContent indicator="line" hideLabel />}
               />
-              <Bar dataKey="사고 건수" fill="hsl(var(--chart-4))" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="사고 건수" radius={[0, 4, 4, 0]}>
+                {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={index === 0 ? 'hsl(var(--chart-4))' : 'hsl(var(--muted-foreground)/30)'} />
+                ))}
+              </Bar>
             </RechartsBarChart>
           </ResponsiveContainer>
         </ChartContainer>
