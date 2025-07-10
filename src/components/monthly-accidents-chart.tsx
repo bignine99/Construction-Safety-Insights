@@ -10,14 +10,10 @@ interface MonthlyAccidentsChartProps {
   incidents: Incident[];
 }
 
-// Function to convert Excel serial date number to JavaScript Date object
 function excelSerialDateToJSDate(serial: number): Date | null {
   if (typeof serial !== 'number' || isNaN(serial)) {
     return null;
   }
-  // Excel's epoch is 1899-12-30 (for compatibility with a Lotus 1-2-3 bug where 1900 is treated as a leap year)
-  // JavaScript's epoch is 1970-01-01
-  // The calculation is: (serial - 25569) * 86400 * 1000
   const utc_days = Math.floor(serial - 25569);
   const utc_value = utc_days * 86400;
   const date_info = new Date(utc_value * 1000);
@@ -46,21 +42,18 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
         date = excelSerialDateToJSDate(dateTimeValue);
       } else if (typeof dateTimeValue === 'string' && dateTimeValue.length > 0) {
         try {
-          // Handles formats like "2021.01.01." or "2021-01-01"
           date = new Date(String(dateTimeValue).replace(/\./g, '-').replace(/-$/, ''));
         } catch (e) {
           // Invalid date string format
         }
       }
       
-      // If date is invalid or couldn't be parsed, skip this incident
       if (!date || isNaN(date.getTime())) {
         return acc;
       }
 
       const year = date.getFullYear();
       const month = date.getMonth();
-      // Create a key in 'YYYY-MM' format
       const key = `${year}-${String(month + 1).padStart(2, '0')}`;
       
       if (!acc[key]) {
@@ -71,7 +64,6 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
       return acc;
     }, {} as Record<string, { month: string; '사고 건수': number }>);
     
-    // Sort the aggregated data by month
     return Object.values(dataByMonth)
       .sort((a, b) => a.month.localeCompare(b.month));
   }, [incidents]);
@@ -95,12 +87,10 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                 tickFormatter={(value) => {
                   if (typeof value === 'string') {
+                    const year = value.substring(2, 4);
                     const month = value.substring(5, 7);
-                    if (month === '01') {
-                      return `'${value.substring(2, 4)}`; // 'YY for January
-                    }
-                    if (month === '07') {
-                      return '7월';
+                    if (month === '06' || month === '12') {
+                      return `${year}.${month}`;
                     }
                   }
                   return '';
