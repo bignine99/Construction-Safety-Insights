@@ -83,13 +83,13 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
               <XAxis 
                 dataKey="month" 
                 tickLine={false} 
-                axisLine={false} 
+                axisLine={true} 
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                 tickFormatter={(value) => {
                   if (typeof value === 'string') {
                     const year = value.substring(2, 4);
                     const month = value.substring(5, 7);
-                    if (month === '06' || month === '12') {
+                    if (month === '01') {
                       return `${year}.${month}`;
                     }
                   }
