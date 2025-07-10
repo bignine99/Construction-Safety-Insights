@@ -165,16 +165,16 @@ export default function DashboardClient({
       </Sidebar>
       <SidebarInset>
         <div className="flex h-full flex-col">
-          <div className="sticky top-0 z-10 flex flex-col gap-4 bg-background p-2">
+          <div className="sticky top-0 z-10 flex flex-col gap-6 bg-background p-6">
             <PageHeader
               title="안전사고 분석 대시보드"
               subtitle="WBS-RBS 기반 위험정보 분석 시스템"
             />
             <DashboardNav />
           </div>
-          <div className="flex flex-1 flex-col gap-4 overflow-auto p-2">
+          <div className="flex flex-1 flex-col gap-6 overflow-auto p-6">
             <DashboardMetrics incidents={filteredIncidents} />
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               <AnnualAccidentsChart incidents={filteredIncidents} />
               <MonthlyAccidentTrendChart incidents={filteredIncidents} />
               <ConstructionSubtypeTreemap incidents={filteredIncidents} />
