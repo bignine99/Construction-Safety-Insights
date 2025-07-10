@@ -75,7 +75,7 @@ export default function RiskRatioChart({
   constructionTypeMap,
   activeFilters,
 }: RiskRatioChartProps) {
-  const bubbleData = useMemo(() => {
+  const { bubbleData, maxCount } = useMemo(() => {
     const subTypeCounts = incidents.reduce((acc, incident) => {
       const subType = incident.constructionTypeSub;
       if (subType) {
@@ -85,14 +85,14 @@ export default function RiskRatioChart({
     }, {} as Record<string, number>);
 
     let data: BubbleData[] = [];
-    const maxCount = Math.max(...Object.values(subTypeCounts), 0);
-    const sizeScale = scaleLinear().domain([0, maxCount]).range([5, 50]);
+    const currentMaxCount = Math.max(...Object.values(subTypeCounts), 0);
+    const sizeScale = scaleLinear().domain([0, currentMaxCount]).range([5, 50]);
 
     Object.entries(constructionTypeMap).forEach(([mainType, subTypes]) => {
       const center = MAIN_TYPE_POSITIONS[mainType];
       if (!center) return;
 
-      const angleStep = (2 * Math.PI) / subTypes.length;
+      const angleStep = (2 * Math.PI) / (subTypes.length || 1);
       const radius = 0.15;
 
       subTypes.forEach((subType, i) => {
@@ -115,7 +115,7 @@ export default function RiskRatioChart({
       });
     });
 
-    return data;
+    return { bubbleData: data, maxCount: currentMaxCount };
   }, [incidents, constructionTypeMap, activeFilters]);
 
   return (
@@ -146,7 +146,7 @@ export default function RiskRatioChart({
                 axisLine={false}
                 hide
               />
-              <ZAxis type="number" dataKey="z" range={[100, 2000]} />
+              <ZAxis type="number" dataKey="z" range={[100, 2000]} domain={[0, maxCount > 0 ? maxCount : 1]} />
               <Tooltip cursor={{ strokeDasharray: '3 3' }} content={<CustomTooltip />} />
               
               {/* Add labels for main categories */}
@@ -156,10 +156,12 @@ export default function RiskRatioChart({
                   xAxisId={`x-label-${name}`}
                   type="number"
                   domain={[0, 1]}
-                  tick={false}
+                  ticks={[x]}
+                  tickFormatter={() => ''}
                   axisLine={false}
-                  hide
-                  label={{ value: name, position: 'insideTop', dy: -20, fill: 'hsl(var(--foreground))', fontSize: 14, fontWeight: 'bold' }}
+                  tickLine={false}
+                  interval={0}
+                  label={{ value: name, position: 'insideTop', dy: y > 0.5 ? 20 : -190, fill: 'hsl(var(--foreground))', fontSize: 14, fontWeight: 'bold' }}
                 />
               ))}
 
