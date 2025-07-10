@@ -66,22 +66,26 @@ export default function DashboardClient({ incidents }: { incidents: Incident[] }
         />
       </Sidebar>
       <SidebarInset>
-        <div className="w-full max-w-none flex flex-1 flex-col gap-4 p-2">
-          <PageHeader 
-            title="안전사고 분석 대시보드"
-            subtitle="WBS-RBS 기반 위험정보 분석 시스템"
-          />
-          <DashboardNav />
-          <DashboardMetrics incidents={filteredIncidents} />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <MonthlyAccidentsChart incidents={filteredIncidents} />
-            <ConstructionSubtypePieChart incidents={filteredIncidents} />
-            <ObjectSubtypeBarChart incidents={filteredIncidents} />
-            <ObjectSubtypeCountChart incidents={filteredIncidents} />
-            <CauseSubtypeBarChart incidents={filteredIncidents} />
-            <ResultMainChart incidents={filteredIncidents} />
-            <CauseResultMatrix incidents={filteredIncidents} />
-            <RiskRatioChart incidents={filteredIncidents} />
+        <div className="flex h-full flex-col">
+          <div className="sticky top-0 z-10 flex flex-col gap-4 bg-background p-2">
+            <PageHeader
+              title="안전사고 분석 대시보드"
+              subtitle="WBS-RBS 기반 위험정보 분석 시스템"
+            />
+            <DashboardNav />
+          </div>
+          <div className="flex flex-1 flex-col gap-4 overflow-auto p-2">
+            <DashboardMetrics incidents={filteredIncidents} />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <MonthlyAccidentsChart incidents={filteredIncidents} />
+              <ConstructionSubtypePieChart incidents={filteredIncidents} />
+              <ObjectSubtypeBarChart incidents={filteredIncidents} />
+              <ObjectSubtypeCountChart incidents={filteredIncidents} />
+              <CauseSubtypeBarChart incidents={filteredIncidents} />
+              <ResultMainChart incidents={filteredIncidents} />
+              <CauseResultMatrix incidents={filteredIncidents} />
+              <RiskRatioChart incidents={filteredIncidents} />
+            </div>
           </div>
         </div>
       </SidebarInset>
