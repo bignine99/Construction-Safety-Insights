@@ -10,32 +10,68 @@ interface MonthlyAccidentsChartProps {
   incidents: Incident[];
 }
 
+// Function to convert Excel serial date number to JavaScript Date object
+function excelSerialDateToJSDate(serial: number): Date | null {
+  if (typeof serial !== 'number' || isNaN(serial)) {
+    return null;
+  }
+  // Excel's epoch is 1899-12-30 (for compatibility with a Lotus 1-2-3 bug where 1900 is treated as a leap year)
+  // JavaScript's epoch is 1970-01-01
+  // The calculation is: (serial - 25569) * 86400 * 1000
+  const utc_days = Math.floor(serial - 25569);
+  const utc_value = utc_days * 86400;
+  const date_info = new Date(utc_value * 1000);
+
+  const fractional_day = serial - Math.floor(serial) + 0.0000001;
+  
+  let total_seconds = Math.floor(86400 * fractional_day);
+  
+  const seconds = total_seconds % 60;
+  total_seconds -= seconds;
+  
+  const hours = Math.floor(total_seconds / (60 * 60));
+  const minutes = Math.floor(total_seconds / 60) % 60;
+  
+  return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds);
+}
+
+
 export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsChartProps) {
   const chartData = useMemo(() => {
     const dataByMonth = incidents.reduce((acc, incident) => {
-      const dateString = String(incident.dateTime || '').replace(/\.$/g, '');
-      if (!dateString) return acc;
-      
-      try {
-        const date = new Date(dateString.replace(/\./g, '-'));
-        if (isNaN(date.getTime())) {
-          return acc;
-        }
+      let date: Date | null = null;
+      const dateTimeValue = incident.dateTime;
 
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        const key = `${year}-${String(month + 1).padStart(2, '0')}`;
-        
-        if (!acc[key]) {
-          acc[key] = { month: key, '사고 건수': 0 };
+      if (typeof dateTimeValue === 'number') {
+        date = excelSerialDateToJSDate(dateTimeValue);
+      } else if (typeof dateTimeValue === 'string' && dateTimeValue.length > 0) {
+        try {
+          // Handles formats like "2021.01.01." or "2021-01-01"
+          date = new Date(String(dateTimeValue).replace(/\./g, '-').replace(/-$/, ''));
+        } catch (e) {
+          // Invalid date string format
         }
-        acc[key]['사고 건수']++;
-      } catch (e) {
-        // Ignore errors from invalid date formats
       }
+      
+      // If date is invalid or couldn't be parsed, skip this incident
+      if (!date || isNaN(date.getTime())) {
+        return acc;
+      }
+
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      // Create a key in 'YYYY-MM' format
+      const key = `${year}-${String(month + 1).padStart(2, '0')}`;
+      
+      if (!acc[key]) {
+        acc[key] = { month: key, '사고 건수': 0 };
+      }
+      acc[key]['사고 건수']++;
+
       return acc;
     }, {} as Record<string, { month: string; '사고 건수': number }>);
     
+    // Sort the aggregated data by month
     return Object.values(dataByMonth)
       .sort((a, b) => a.month.localeCompare(b.month));
   }, [incidents]);
@@ -58,6 +94,7 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
                 axisLine={false} 
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                 tickFormatter={(value) => {
+                  // Show 'YY format only for January
                   if (typeof value === 'string' && value.endsWith('-01')) {
                     return `'${value.substring(2, 4)}`;
                   }
