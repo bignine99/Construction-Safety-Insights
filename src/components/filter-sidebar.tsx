@@ -2,28 +2,21 @@
 
 import Image from 'next/image';
 import { Search } from 'lucide-react';
-
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 interface FilterSidebarProps {
   filters: {
-    projectOwner: string;
-    projectType: string;
-    constructionTypeMain: string;
-    constructionTypeSub: string;
-    objectMain: string;
-    causeMain: string;
-    resultMain: string;
+    projectOwner: string[];
+    projectType: string[];
+    constructionTypeMain: string[];
+    constructionTypeSub: string[];
+    objectMain: string[];
+    causeMain: string[];
+    resultMain: string[];
   };
   onFilterChange: (filters: any) => void;
   projectOwners: string[];
@@ -33,6 +26,7 @@ interface FilterSidebarProps {
   objectMains: string[];
   causeMains: string[];
   resultMains: string[];
+  constructionTypeSubOptions: string[];
 }
 
 export default function FilterSidebar({
@@ -45,18 +39,19 @@ export default function FilterSidebar({
   objectMains,
   causeMains,
   resultMains,
+  constructionTypeSubOptions,
 }: FilterSidebarProps) {
   const { toast } = useToast();
 
   const handleReset = () => {
     onFilterChange({
-      projectOwner: 'all',
-      projectType: 'all',
-      constructionTypeMain: 'all',
-      constructionTypeSub: 'all',
-      objectMain: 'all',
-      causeMain: 'all',
-      resultMain: 'all',
+      projectOwner: [],
+      projectType: [],
+      constructionTypeMain: [],
+      constructionTypeSub: [],
+      objectMain: [],
+      causeMain: [],
+      resultMain: [],
     });
   };
 
@@ -66,6 +61,9 @@ export default function FilterSidebar({
       description: '검색 조건에 따른 데이터 분석 기능은 현재 개발 중입니다.',
     });
   };
+
+  const toMultiSelectOptions = (items: string[]) =>
+    items.map(item => ({ label: item, value: item }));
 
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
@@ -88,50 +86,34 @@ export default function FilterSidebar({
             초기화
           </Button>
         </div>
-        <div className="flex-1 space-y-6">
+        <div className="flex-1 space-y-4">
           <div>
             <Label htmlFor="projectOwner" className="text-sm font-medium">
               특성 분류
             </Label>
-            <Select
-              value={filters.projectOwner}
-              onValueChange={(value) =>
+            <MultiSelect
+              options={toMultiSelectOptions(projectOwners)}
+              onValueChange={value =>
                 onFilterChange({ ...filters, projectOwner: value })
               }
-            >
-              <SelectTrigger id="projectOwner" className="mt-1">
-                <SelectValue placeholder="전체" />
-              </SelectTrigger>
-              <SelectContent>
-                {projectOwners.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type === 'all' ? '전체' : type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              defaultValue={filters.projectOwner}
+              placeholder="전체"
+              className="mt-1"
+            />
           </div>
           <div>
             <Label htmlFor="projectType" className="text-sm font-medium">
               용도 분류
             </Label>
-            <Select
-              value={filters.projectType}
-              onValueChange={(value) =>
+            <MultiSelect
+              options={toMultiSelectOptions(projectTypes)}
+              onValueChange={value =>
                 onFilterChange({ ...filters, projectType: value })
               }
-            >
-              <SelectTrigger id="projectType" className="mt-1">
-                <SelectValue placeholder="전체" />
-              </SelectTrigger>
-              <SelectContent>
-                {projectTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type === 'all' ? '전체' : type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              defaultValue={filters.projectType}
+              placeholder="전체"
+              className="mt-1"
+            />
           </div>
           <div>
             <Label
@@ -140,23 +122,19 @@ export default function FilterSidebar({
             >
               공종 대분류
             </Label>
-            <Select
-              value={filters.constructionTypeMain}
-              onValueChange={(value) =>
-                onFilterChange({ ...filters, constructionTypeMain: value })
+            <MultiSelect
+              options={toMultiSelectOptions(constructionTypeMains)}
+              onValueChange={value =>
+                onFilterChange({
+                  ...filters,
+                  constructionTypeMain: value,
+                  constructionTypeSub: [],
+                })
               }
-            >
-              <SelectTrigger id="constructionTypeMain" className="mt-1">
-                <SelectValue placeholder="전체" />
-              </SelectTrigger>
-              <SelectContent>
-                {constructionTypeMains.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type === 'all' ? '전체' : type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              defaultValue={filters.constructionTypeMain}
+              placeholder="전체"
+              className="mt-1"
+            />
           </div>
           <div>
             <Label
@@ -165,93 +143,62 @@ export default function FilterSidebar({
             >
               공종 중분류
             </Label>
-            <Select
-              value={filters.constructionTypeSub}
-              onValueChange={(value) =>
+            <MultiSelect
+              options={toMultiSelectOptions(constructionTypeSubOptions)}
+              onValueChange={value =>
                 onFilterChange({ ...filters, constructionTypeSub: value })
               }
-            >
-              <SelectTrigger id="constructionTypeSub" className="mt-1">
-                <SelectValue placeholder="전체" />
-              </SelectTrigger>
-              <SelectContent>
-                {constructionTypeSubs.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type === 'all' ? '전체' : type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              defaultValue={filters.constructionTypeSub}
+              placeholder="전체"
+              className="mt-1"
+              disabled={filters.constructionTypeMain.length === 0}
+            />
           </div>
           <div>
             <Label htmlFor="objectMain" className="text-sm font-medium">
               사고객체 대분류
             </Label>
-            <Select
-              value={filters.objectMain}
-              onValueChange={(value) =>
+            <MultiSelect
+              options={toMultiSelectOptions(objectMains)}
+              onValueChange={value =>
                 onFilterChange({ ...filters, objectMain: value })
               }
-            >
-              <SelectTrigger id="objectMain" className="mt-1">
-                <SelectValue placeholder="전체" />
-              </SelectTrigger>
-              <SelectContent>
-                {objectMains.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type === 'all' ? '전체' : type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              defaultValue={filters.objectMain}
+              placeholder="전체"
+              className="mt-1"
+            />
           </div>
           <div>
             <Label htmlFor="causeMain" className="text-sm font-medium">
               사고원인 대분류
             </Label>
-            <Select
-              value={filters.causeMain}
-              onValueChange={(value) =>
+            <MultiSelect
+              options={toMultiSelectOptions(causeMains)}
+              onValueChange={value =>
                 onFilterChange({ ...filters, causeMain: value })
               }
-            >
-              <SelectTrigger id="causeMain" className="mt-1">
-                <SelectValue placeholder="전체" />
-              </SelectTrigger>
-              <SelectContent>
-                {causeMains.map((cause) => (
-                  <SelectItem key={cause} value={cause}>
-                    {cause === 'all' ? '전체' : cause}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              defaultValue={filters.causeMain}
+              placeholder="전체"
+              className="mt-1"
+            />
           </div>
           <div>
             <Label htmlFor="resultMain" className="text-sm font-medium">
               사고 결과 대분류
             </Label>
-            <Select
-              value={filters.resultMain}
-              onValueChange={(value) =>
+            <MultiSelect
+              options={toMultiSelectOptions(resultMains)}
+              onValueChange={value =>
                 onFilterChange({ ...filters, resultMain: value })
               }
-            >
-              <SelectTrigger id="resultMain" className="mt-1">
-                <SelectValue placeholder="전체" />
-              </SelectTrigger>
-              <SelectContent>
-                {resultMains.map((result) => (
-                  <SelectItem key={result} value={result}>
-                    {result === 'all' ? '전체' : result}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              defaultValue={filters.resultMain}
+              placeholder="전체"
+              className="mt-1"
+            />
           </div>
         </div>
         <div className="mt-auto pt-4">
-          <Button className="w-full" onClick={handleAnalysisClick}>
+          <Button className="w-full" onClick={handleAnalysisClick} disabled>
             <Search className="mr-2 h-4 w-4" />
             검색 조건 데이터 분석
           </Button>

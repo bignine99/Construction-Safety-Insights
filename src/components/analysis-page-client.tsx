@@ -24,6 +24,36 @@ interface AnalysisPageClientProps {
   uniqueResultMains: string[];
 }
 
+const constructionTypeMap: Record<string, string[]> = {
+  건축: [
+    '해체및철거공사',
+    '금속공사',
+    '목공사',
+    '수장공사',
+    '도장공사',
+    '지붕및홈통공사',
+    '가설공사',
+    '철근콘크리트공사',
+    '철골공사',
+    '조적공사',
+    '미장공사',
+    '방수공사',
+    '타일및석공사',
+    '창호및유리공사',
+  ],
+  토목: [
+    '토공사',
+    '지정공사',
+    '관공사',
+    '부대공사',
+    '조경공사',
+    '도로및포장공사',
+  ],
+  설비: ['기계설비공사', '전기설비공사', '통신설비공사'],
+  기타: ['기타'],
+};
+
+
 export default function AnalysisPageClient({
   incidents,
   uniqueProjectOwners,
@@ -35,14 +65,27 @@ export default function AnalysisPageClient({
   uniqueResultMains,
 }: AnalysisPageClientProps) {
   const [filters, setFilters] = useState({
-    projectOwner: 'all',
-    projectType: 'all',
-    constructionTypeMain: 'all',
-    constructionTypeSub: 'all',
-    objectMain: 'all',
-    causeMain: 'all',
-    resultMain: 'all',
+    projectOwner: [] as string[],
+    projectType: [] as string[],
+    constructionTypeMain: [] as string[],
+    constructionTypeSub: [] as string[],
+    objectMain: [] as string[],
+    causeMain: [] as string[],
+    resultMain: [] as string[],
   });
+
+  const constructionTypeSubOptions = useMemo(() => {
+    if (filters.constructionTypeMain.length === 0) {
+      return uniqueConstructionTypeSubs;
+    }
+    const options = new Set<string>();
+    filters.constructionTypeMain.forEach(mainType => {
+      const subs = constructionTypeMap[mainType] || [];
+      subs.forEach(sub => options.add(sub));
+    });
+    return Array.from(options);
+  }, [filters.constructionTypeMain, uniqueConstructionTypeSubs]);
+
 
   const filteredIncidents = useMemo(() => {
     return incidents.filter(incident => {
@@ -55,22 +98,23 @@ export default function AnalysisPageClient({
         causeMain,
         resultMain,
       } = filters;
+      
       const projectOwnerMatch =
-        projectOwner === 'all' || incident.projectOwner === projectOwner;
+        projectOwner.length === 0 || projectOwner.includes(incident.projectOwner);
       const projectTypeMatch =
-        projectType === 'all' || incident.projectType === projectType;
+        projectType.length === 0 || projectType.includes(incident.projectType);
       const constructionTypeMainMatch =
-        constructionTypeMain === 'all' ||
-        incident.constructionTypeMain === constructionTypeMain;
+        constructionTypeMain.length === 0 ||
+        constructionTypeMain.includes(incident.constructionTypeMain);
       const constructionTypeSubMatch =
-        constructionTypeSub === 'all' ||
-        incident.constructionTypeSub === constructionTypeSub;
+        constructionTypeSub.length === 0 ||
+        constructionTypeSub.includes(incident.constructionTypeSub);
       const objectMainMatch =
-        objectMain === 'all' || incident.objectMain === objectMain;
+        objectMain.length === 0 || objectMain.includes(incident.objectMain);
       const causeMainMatch =
-        causeMain === 'all' || incident.causeMain === causeMain;
+        causeMain.length === 0 || causeMain.includes(incident.causeMain);
       const resultMainMatch =
-        resultMain === 'all' || incident.resultMain === resultMain;
+        resultMain.length === 0 || resultMain.includes(incident.resultMain);
 
       return (
         projectOwnerMatch &&
@@ -90,13 +134,14 @@ export default function AnalysisPageClient({
         <FilterSidebar
           filters={filters}
           onFilterChange={setFilters}
-          projectOwners={uniqueProjectOwners}
-          projectTypes={uniqueProjectTypes}
-          constructionTypeMains={uniqueConstructionTypeMains}
-          constructionTypeSubs={uniqueConstructionTypeSubs}
-          objectMains={uniqueObjectMains}
-          causeMains={uniqueCauseMains}
-          resultMains={uniqueResultMains}
+          projectOwners={uniqueProjectOwners.filter(o => o !== 'all')}
+          projectTypes={uniqueProjectTypes.filter(o => o !== 'all')}
+          constructionTypeMains={uniqueConstructionTypeMains.filter(o => o !== 'all')}
+          constructionTypeSubs={uniqueConstructionTypeSubs.filter(o => o !== 'all')}
+          objectMains={uniqueObjectMains.filter(o => o !== 'all')}
+          causeMains={uniqueCauseMains.filter(o => o !== 'all')}
+          resultMains={uniqueResultMains.filter(o => o !== 'all')}
+          constructionTypeSubOptions={constructionTypeSubOptions}
         />
       </Sidebar>
       <SidebarInset>
