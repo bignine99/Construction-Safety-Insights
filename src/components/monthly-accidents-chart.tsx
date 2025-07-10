@@ -6,7 +6,7 @@ import type { Incident } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
-interface MonthlyAccidentsChartProps {
+interface AnnualAccidentsChartProps {
   incidents: Incident[];
 }
 
@@ -32,7 +32,7 @@ function excelSerialDateToJSDate(serial: number): Date | null {
 }
 
 
-export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsChartProps) {
+export default function AnnualAccidentsChart({ incidents }: AnnualAccidentsChartProps) {
   const chartData = useMemo(() => {
     const dataByMonth = incidents.reduce((acc, incident) => {
       let date: Date | null = null;
@@ -71,7 +71,7 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center p-4 pb-2">
-        <CardTitle>시간별 사고 발생 현황</CardTitle>
+        <CardTitle>년도별 사고 발생 현황</CardTitle>
         <CardDescription>마우스를 올리시면 년도별 월별 사고건수를 확인할 수 있습니다.</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow p-2 pt-0">

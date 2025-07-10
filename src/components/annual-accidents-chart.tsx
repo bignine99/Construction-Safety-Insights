@@ -29,12 +29,12 @@ export default function AnnualAccidentsChart({ incidents }: AnnualAccidentsChart
   });
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>연도별 사고 발생 현황</CardTitle>
+    <Card className="flex flex-col">
+      <CardHeader className="items-center p-4 pb-2">
+        <CardTitle>년도별 사고 발생 현황</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }} className="h-[350px] w-full">
+      <CardContent className="flex-grow p-2 pt-0">
+        <ChartContainer config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }} className="h-full w-full">
           <RechartsBarChart
             data={fullChartData}
             margin={{ top: 5, right: 20, left: 0, bottom: 5, }}

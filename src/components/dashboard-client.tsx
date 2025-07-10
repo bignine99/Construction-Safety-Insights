@@ -6,7 +6,7 @@ import FilterSidebar from '@/components/filter-sidebar';
 import DashboardMetrics from '@/components/dashboard-metrics';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import PageHeader from './page-header';
-import MonthlyAccidentsChart from './monthly-accidents-chart';
+import AnnualAccidentsChart from './annual-accidents-chart';
 import ConstructionSubtypeTreemap from './construction-subtype-pie-chart';
 import ObjectSubtypeBarChart from './object-subtype-bar-chart';
 import ObjectSubtypeCountChart from './object-subtype-count-chart';
@@ -15,6 +15,7 @@ import ResultMainChart from './result-main-chart';
 import CauseResultMatrix from './cause-result-matrix';
 import RiskRatioChart from './risk-ratio-chart';
 import { DashboardNav } from './dashboard-nav';
+import MonthlyAccidentTrendChart from './monthly-accident-trend-chart';
 
 const constructionTypeMap: Record<string, string[]> = {
   건축: [
@@ -174,7 +175,8 @@ export default function DashboardClient({
           <div className="flex flex-1 flex-col gap-4 overflow-auto p-2">
             <DashboardMetrics incidents={filteredIncidents} />
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <MonthlyAccidentsChart incidents={filteredIncidents} />
+              <AnnualAccidentsChart incidents={filteredIncidents} />
+              <MonthlyAccidentTrendChart incidents={filteredIncidents} />
               <ConstructionSubtypeTreemap incidents={filteredIncidents} />
               <ObjectSubtypeBarChart incidents={filteredIncidents} />
               <ObjectSubtypeCountChart incidents={filteredIncidents} />
