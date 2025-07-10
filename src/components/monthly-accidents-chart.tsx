@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { Line, LineChart, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import type { Incident } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
 interface MonthlyAccidentsChartProps {
@@ -71,7 +71,8 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center p-4 pb-2">
-        <CardTitle>월별 사고 발생 현황</CardTitle>
+        <CardTitle>시간별 사고 발생 현황</CardTitle>
+        <CardDescription>마우스를 올리시면 년도별 월별 사고건수를 확인할 수 있습니다.</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow p-2 pt-0">
         <ChartContainer config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }} className="h-full w-full">
