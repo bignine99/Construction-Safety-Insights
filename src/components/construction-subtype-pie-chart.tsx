@@ -43,21 +43,21 @@ const CustomizedContent = (props: any) => {
       />
       <text
         x={x + width / 2}
-        y={y + height / 2}
+        y={y + height / 2 - 6}
         textAnchor="middle"
         dominantBaseline="middle"
         fill="#fff"
-        className="text-[10px] font-normal"
+        className="text-[10px] font-normal antialiased"
       >
         {name}
       </text>
        <text
         x={x + width / 2}
-        y={y + height / 2 + 12}
+        y={y + height / 2 + 6}
         textAnchor="middle"
         dominantBaseline="middle"
         fill="#fff"
-        className="text-[10px]"
+        className="text-[10px] font-normal antialiased"
       >
         {`(${value}건)`}
       </text>
