@@ -1,7 +1,8 @@
 'use server';
 
 import { analyzeAccidentThemes } from '@/ai/flows/analyze-accident-themes';
-import type { AiAnalysis } from '@/lib/types';
+import { performVisualAnalysis } from '@/ai/flows/perform-visual-analysis';
+import type { AiAnalysis, VisualAnalysisInput } from '@/lib/types';
 
 export async function getAiAnalysis(
   accidentDescriptions: string[]
@@ -23,4 +24,9 @@ export async function getAiAnalysis(
       preventativeMeasures: ['AI 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'],
     };
   }
+}
+
+export async function performVisualAnalysisAction(input: VisualAnalysisInput): Promise<{ stream: AsyncGenerator<string> }> {
+  const stream = await performVisualAnalysis(input);
+  return { stream };
 }

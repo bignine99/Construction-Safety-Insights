@@ -27,4 +27,7 @@ export interface AiAnalysis {
   preventativeMeasures: string[];
 }
 
-    
+export interface VisualAnalysisInput {
+  prompt: string;
+  photoDataUri: string | null;
+}

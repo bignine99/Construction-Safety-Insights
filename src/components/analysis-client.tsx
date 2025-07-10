@@ -1,21 +1,38 @@
 'use client';
 
-import { useState } from 'react';
-import type { AiAnalysis, Incident } from '@/lib/types';
+import { useState, useRef } from 'react';
+import type { AiAnalysis, Incident, VisualAnalysisInput } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getAiAnalysis } from '@/app/actions';
-import { Loader2, HelpCircle, Paperclip, Sparkles, Wand2 } from 'lucide-react';
+import { getAiAnalysis, performVisualAnalysisAction } from '@/app/actions';
+import { Loader2, HelpCircle, Paperclip, Sparkles, Wand2, X, Image as ImageIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from './ui/badge';
 import { Skeleton } from './ui/skeleton';
 import { Input } from './ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { Textarea } from './ui/textarea';
+import Image from 'next/image';
+
+function fileToDataURI(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function AnalysisClient({ incidents }: { incidents: Incident[] }) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AiAnalysis | null>(null);
+
+  const [qaLoading, setQaLoading] = useState(false);
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAnalysis = async () => {
     setLoading(true);
@@ -26,11 +43,46 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
     setLoading(false);
   };
 
-  const handleNotImplemented = () => {
-    toast({
-      title: '기능 구현 중',
-      description: '해당 기능은 현재 개발 중입니다.',
-    });
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const dataUri = await fileToDataURI(file);
+      setUploadedImage(dataUri);
+    }
+  };
+
+  const handleAskQuestion = async () => {
+    if (!question.trim()) {
+      toast({
+        title: '질문을 입력해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setQaLoading(true);
+    setAnswer('');
+    
+    const visualInput: VisualAnalysisInput = {
+      prompt: question,
+      photoDataUri: uploadedImage,
+    };
+
+    try {
+      const { stream } = await performVisualAnalysisAction(visualInput);
+      for await (const chunk of stream) {
+        setAnswer(prev => prev + chunk);
+      }
+    } catch (error) {
+      console.error('Visual analysis failed:', error);
+      toast({
+        title: '분석 중 오류 발생',
+        description: 'AI 분석 중 오류가 발생했습니다. 다시 시도해주세요.',
+        variant: 'destructive',
+      });
+    } finally {
+      setQaLoading(false);
+    }
   };
 
   return (
@@ -49,7 +101,7 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
             ) : (
               <Wand2 className="mr-2 h-4 w-4" />
             )}
-            {loading ? '분석 중...' : 'AI 분석 실행'}
+            {loading ? '분석 중...' : `AI 분석 실행 (${incidents.length}건)`}
           </Button>
 
           {loading && (
@@ -122,21 +174,57 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
             건설 안전에 대한 질문을 하거나, 현장 사진 또는 작업일보를 업로드하여 분석을 요청하세요.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="flex items-center gap-2">
             <Input 
               placeholder="예: 이 사진에서 위험요소는 무엇인가요?"
               className="flex-grow"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAskQuestion()}
+              disabled={qaLoading}
             />
-            <Button variant="outline" onClick={handleNotImplemented}>
+            <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={qaLoading}>
               <Paperclip className="mr-2 h-4 w-4" />
               파일 첨부
             </Button>
-            <Button onClick={handleNotImplemented}>
-              <Sparkles className="mr-2 h-4 w-4" />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              accept="image/*"
+            />
+            <Button onClick={handleAskQuestion} disabled={qaLoading}>
+              {qaLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
               질문하기
             </Button>
           </div>
+          {uploadedImage && (
+            <div className="relative w-48 h-48 border rounded-md">
+              <Image src={uploadedImage} alt="Uploaded preview" layout="fill" objectFit="cover" className="rounded-md" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-1 right-1 h-6 w-6 bg-black/50 hover:bg-black/70 text-white"
+                onClick={() => setUploadedImage(null)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+          {qaLoading && !answer && (
+             <div className="space-y-2 pt-4">
+              <Skeleton className="h-5 w-4/5" />
+              <Skeleton className="h-5 w-full" />
+              <Skeleton className="h-5 w-3/4" />
+            </div>
+          )}
+          {answer && (
+            <div className="pt-4">
+              <Textarea value={answer} readOnly className="h-48 text-sm" />
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
