@@ -36,7 +36,7 @@ export default function FilteredIncidentsTable({ incidents }: FilteredIncidentsT
       <CardContent>
         <ScrollArea className="h-72">
           <Table>
-            <TableHeader>
+            <TableHeader className="sticky top-0 bg-card">
               <TableRow>
                 <TableHead className="w-[50px]">No.</TableHead>
                 <TableHead>사고명</TableHead>
