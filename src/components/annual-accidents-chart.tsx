@@ -9,19 +9,60 @@ interface AnnualAccidentsChartProps {
   incidents: Incident[];
 }
 
+function excelSerialDateToJSDate(serial: number): Date | null {
+  if (typeof serial !== 'number' || isNaN(serial)) {
+    return null;
+  }
+  const utc_days = Math.floor(serial - 25569);
+  const utc_value = utc_days * 86400;
+  const date_info = new Date(utc_value * 1000);
+
+  const fractional_day = serial - Math.floor(serial) + 0.0000001;
+
+  let total_seconds = Math.floor(86400 * fractional_day);
+
+  const seconds = total_seconds % 60;
+  total_seconds -= seconds;
+
+  const hours = Math.floor(total_seconds / (60 * 60));
+  const minutes = Math.floor(total_seconds / 60) % 60;
+
+  return new Date(
+    date_info.getFullYear(),
+    date_info.getMonth(),
+    date_info.getDate(),
+    hours,
+    minutes,
+    seconds
+  );
+}
+
+
 export default function AnnualAccidentsChart({ incidents }: AnnualAccidentsChartProps) {
   const dataByYear = incidents.reduce((acc, incident) => {
-    try {
-      const date = new Date(incident.dateTime);
-      if (isNaN(date.getTime())) return acc;
-      const year = date.getFullYear().toString();
-      if (!acc[year]) {
-        acc[year] = { year, '사고 건수': 0 };
+    let date: Date | null = null;
+    const dateTimeValue = incident.dateTime;
+
+    if (typeof dateTimeValue === 'number') {
+      date = excelSerialDateToJSDate(dateTimeValue);
+    } else if (typeof dateTimeValue === 'string' && dateTimeValue.length > 0) {
+      try {
+        date = new Date(String(dateTimeValue).replace(/\./g, '-').replace(/-$/, ''));
+      } catch (e) {
+        // Invalid date string format
       }
-      acc[year]['사고 건수']++;
-    } catch (e) {
-      // ignore invalid dates
     }
+
+    if (!date || isNaN(date.getTime())) {
+      return acc;
+    }
+
+    const year = date.getFullYear().toString();
+    if (!acc[year]) {
+      acc[year] = { year, '사고 건수': 0 };
+    }
+    acc[year]['사고 건수']++;
+    
     return acc;
   }, {} as Record<string, { year: string; '사고 건수': number }>);
   
@@ -53,6 +94,7 @@ export default function AnnualAccidentsChart({ incidents }: AnnualAccidentsChart
                 tickFormatter={(value) => value.toLocaleString()}
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                 label={{ value: '사고 건수', angle: -90, position: 'insideLeft', offset: 10, fill: 'hsl(var(--muted-foreground))' }}
+                allowDecimals={false}
             />
             <Tooltip
               cursor={{ fill: 'hsl(var(--accent) / 0.2)' }}
