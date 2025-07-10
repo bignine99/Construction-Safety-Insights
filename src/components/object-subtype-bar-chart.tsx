@@ -29,7 +29,7 @@ export default function ObjectSubtypeBarChart({ incidents }: ObjectSubtypeBarCha
         <CardTitle>작업별 사고위험지수</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow p-2 pt-0">
-        <ChartContainer config={{ '사고위험지수': { label: '사고위험지수', color: 'hsl(var(--chart-3))' } }} className="h-full w-full">
+        <ChartContainer config={{ '사고위험지수': { label: '사고위험지수', color: 'hsl(var(--primary))' } }} className="h-full w-full">
           <ResponsiveContainer>
             <RechartsBarChart 
               data={chartData} 
@@ -60,7 +60,7 @@ export default function ObjectSubtypeBarChart({ incidents }: ObjectSubtypeBarCha
               />
               <Bar dataKey="사고위험지수" radius={[0, 4, 4, 0]}>
                 {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index === 0 ? 'hsl(var(--chart-3))' : 'hsl(var(--muted-foreground)/30)'} />
+                    <Cell key={`cell-${index}`} fill={index === 0 ? 'hsl(var(--primary))' : 'hsl(var(--primary)/0.3)'} />
                 ))}
               </Bar>
             </RechartsBarChart>

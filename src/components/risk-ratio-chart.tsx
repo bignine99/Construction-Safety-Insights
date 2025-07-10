@@ -51,8 +51,8 @@ export default function RiskRatioChart({ incidents }: RiskRatioChartProps) {
   const chartData = [{ name: 'ratio', value: percentage }];
 
   const chartConfig = {
-    value: { label: '비율', color: 'hsl(var(--chart-2))' },
-    ratio: { label: '비율', color: 'hsl(var(--chart-2))' },
+    value: { label: '비율', color: 'hsl(var(--primary))' },
+    ratio: { label: '비율', color: 'hsl(var(--primary))' },
   };
 
   return (

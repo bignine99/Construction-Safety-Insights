@@ -60,7 +60,7 @@ export default function CauseSubtypeBarChart({ incidents }: CauseSubtypeBarChart
               />
               <Bar dataKey="사고 건수" radius={[0, 4, 4, 0]}>
                 {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index === 0 ? 'hsl(var(--chart-4))' : 'hsl(var(--muted-foreground)/30)'} />
+                    <Cell key={`cell-${index}`} fill={index === 0 ? 'hsl(var(--primary))' : 'hsl(var(--primary)/0.3)'} />
                 ))}
               </Bar>
             </RechartsBarChart>

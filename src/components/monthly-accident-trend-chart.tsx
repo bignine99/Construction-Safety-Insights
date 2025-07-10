@@ -133,7 +133,7 @@ export default function MonthlyAccidentTrendChart({
       <CardContent className="flex-grow p-2 pt-0">
         <ChartContainer
           config={{
-            accidents: { label: '총 사고 건수', color: 'hsl(var(--chart-2))' },
+            accidents: { label: '총 사고 건수', color: 'hsl(var(--primary))' },
             fatalities: { label: '사망자 수', color: 'hsl(var(--destructive))' },
           }}
           className="h-full w-full"
@@ -189,7 +189,7 @@ export default function MonthlyAccidentTrendChart({
               <Bar
                 yAxisId="left"
                 dataKey="accidents"
-                fill="hsl(var(--chart-2) / 0.5)"
+                fill="hsl(var(--primary) / 0.5)"
                 name="총 사고 건수"
                 hide={activeTab === 'fatalities'}
               />
