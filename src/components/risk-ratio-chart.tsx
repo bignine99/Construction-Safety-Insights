@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo } from 'react';
@@ -11,6 +12,7 @@ import {
   Scatter,
   ZAxis,
   Cell,
+  LabelList,
 } from 'recharts';
 import type { Incident } from '@/lib/types';
 import {
@@ -20,7 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { ChartContainer, ChartTooltipContent } from './ui/chart';
+import { ChartContainer } from './ui/chart';
 
 interface RiskRatioChartProps {
   incidents: Incident[];
@@ -39,8 +41,8 @@ interface BubbleData {
 }
 
 const MAIN_TYPE_POSITIONS: Record<string, { x: number; y: number; color: string }> = {
-  건축: { x: 0.25, y: 0.25, color: 'hsl(var(--chart-1))' },
-  토목: { x: 0.75, y: 0.25, color: 'hsl(var(--chart-2))' },
+  건축: { x: 0.25, y: 0.35, color: 'hsl(var(--chart-1))' },
+  토목: { x: 0.75, y: 0.35, color: 'hsl(var(--chart-2))' },
   설비: { x: 0.25, y: 0.75, color: 'hsl(var(--chart-3))' },
   기타: { x: 0.75, y: 0.75, color: 'hsl(var(--chart-5))' },
 };
@@ -70,12 +72,30 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
+const CustomLabel = (props: any) => {
+  const { x, y, value } = props;
+  return (
+    <text
+      x={x}
+      y={y}
+      dy={-10}
+      fill="hsl(var(--foreground))"
+      fontSize={14}
+      fontWeight="bold"
+      textAnchor="middle"
+    >
+      {value}
+    </text>
+  );
+};
+
+
 export default function RiskRatioChart({
   incidents,
   constructionTypeMap,
   activeFilters,
 }: RiskRatioChartProps) {
-  const { bubbleData, maxCount } = useMemo(() => {
+  const { bubbleData, maxCount, mainTypeLabelData } = useMemo(() => {
     const subTypeCounts = incidents.reduce((acc, incident) => {
       const subType = incident.constructionTypeSub;
       if (subType) {
@@ -86,7 +106,12 @@ export default function RiskRatioChart({
 
     let data: BubbleData[] = [];
     const currentMaxCount = Math.max(...Object.values(subTypeCounts), 0);
-    const sizeScale = scaleLinear().domain([0, currentMaxCount]).range([5, 50]);
+
+    const labels = Object.entries(MAIN_TYPE_POSITIONS).map(([name, { x, y }]) => ({
+        x,
+        y,
+        name
+    }));
 
     Object.entries(constructionTypeMap).forEach(([mainType, subTypes]) => {
       const center = MAIN_TYPE_POSITIONS[mainType];
@@ -115,7 +140,7 @@ export default function RiskRatioChart({
       });
     });
 
-    return { bubbleData: data, maxCount: currentMaxCount };
+    return { bubbleData: data, maxCount: currentMaxCount, mainTypeLabelData: labels };
   }, [incidents, constructionTypeMap, activeFilters]);
 
   return (
@@ -129,7 +154,7 @@ export default function RiskRatioChart({
       <CardContent className="flex-grow p-0">
         <ChartContainer config={{}} className="w-full h-full min-h-[250px]">
           <ResponsiveContainer>
-            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+            <ScatterChart margin={{ top: 30, right: 20, bottom: 20, left: 20 }}>
               <XAxis
                 type="number"
                 dataKey="x"
@@ -149,22 +174,6 @@ export default function RiskRatioChart({
               <ZAxis type="number" dataKey="z" range={[100, 2000]} domain={[0, maxCount > 0 ? maxCount : 1]} />
               <Tooltip cursor={{ strokeDasharray: '3 3' }} content={<CustomTooltip />} />
               
-              {/* Add labels for main categories */}
-              {Object.entries(MAIN_TYPE_POSITIONS).map(([name, { x, y }]) => (
-                <XAxis
-                  key={name}
-                  xAxisId={`x-label-${name}`}
-                  type="number"
-                  domain={[0, 1]}
-                  ticks={[x]}
-                  tickFormatter={() => ''}
-                  axisLine={false}
-                  tickLine={false}
-                  interval={0}
-                  label={{ value: name, position: 'insideTop', dy: y > 0.5 ? 20 : -190, fill: 'hsl(var(--foreground))', fontSize: 14, fontWeight: 'bold' }}
-                />
-              ))}
-
               <Scatter data={bubbleData}>
                 {bubbleData.map((entry, index) => (
                   <Cell
@@ -175,6 +184,10 @@ export default function RiskRatioChart({
                     style={{ opacity: entry.isActive ? 1 : 0.6 }}
                   />
                 ))}
+              </Scatter>
+
+              <Scatter data={mainTypeLabelData} dataKey="x" name="labels">
+                 <LabelList dataKey="name" position="top" content={<CustomLabel />} />
               </Scatter>
             </ScatterChart>
           </ResponsiveContainer>
