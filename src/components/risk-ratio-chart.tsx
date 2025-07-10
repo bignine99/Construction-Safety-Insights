@@ -11,8 +11,7 @@ import {
   Scatter,
   ZAxis,
   Cell,
-  LabelList,
-  ReferenceArea,
+  Label,
 } from 'recharts';
 import type { Incident } from '@/lib/types';
 import {
@@ -40,11 +39,14 @@ interface BubbleData {
   isActive: boolean;
 }
 
-const MAIN_TYPE_POSITIONS: Record<string, { x: number; y: number; color: string }> = {
-  건축: { x: 0.25, y: 0.35, color: 'hsl(var(--chart-1))' },
-  토목: { x: 0.75, y: 0.35, color: 'hsl(var(--chart-2))' },
-  설비: { x: 0.25, y: 0.75, color: 'hsl(var(--chart-3))' },
-  기타: { x: 0.75, y: 0.75, color: 'hsl(var(--chart-5))' },
+const MAIN_TYPE_POSITIONS: Record<
+  string,
+  { x: number; y: number; color: string; radius: number }
+> = {
+  건축: { x: 0.3, y: 0.3, color: 'hsl(var(--chart-1))', radius: 0.25 },
+  토목: { x: 0.75, y: 0.3, color: 'hsl(var(--chart-2))', radius: 0.15 },
+  설비: { x: 0.3, y: 0.75, color: 'hsl(var(--chart-3))', radius: 0.15 },
+  기타: { x: 0.75, y: 0.75, color: 'hsl(var(--chart-5))', radius: 0.15 },
 };
 
 const CustomTooltip = ({ active, payload }: any) => {
@@ -72,30 +74,12 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-const CustomLabel = (props: any) => {
-  const { x, y, value } = props;
-  return (
-    <text
-      x={x}
-      y={y}
-      dy={-10}
-      fill="hsl(var(--foreground))"
-      fontSize={14}
-      fontWeight="bold"
-      textAnchor="middle"
-    >
-      {value}
-    </text>
-  );
-};
-
-
 export default function RiskRatioChart({
   incidents,
   constructionTypeMap,
   activeFilters,
 }: RiskRatioChartProps) {
-  const { bubbleData, maxCount, mainTypeLabelData } = useMemo(() => {
+  const { bubbleData, maxCount } = useMemo(() => {
     const subTypeCounts = incidents.reduce((acc, incident) => {
       const subType = incident.constructionTypeSub;
       if (subType) {
@@ -107,26 +91,19 @@ export default function RiskRatioChart({
     let data: BubbleData[] = [];
     const currentMaxCount = Math.max(...Object.values(subTypeCounts), 0);
 
-    const labels = Object.entries(MAIN_TYPE_POSITIONS).map(([name, { x, y }]) => ({
-        x,
-        y,
-        name
-    }));
-
     Object.entries(constructionTypeMap).forEach(([mainType, subTypes]) => {
       const center = MAIN_TYPE_POSITIONS[mainType];
       if (!center) return;
 
       const angleStep = (2 * Math.PI) / (subTypes.length || 1);
-      const radius = 0.15;
 
       subTypes.forEach((subType, i) => {
         const count = subTypeCounts[subType] || 0;
         if (count === 0) return;
 
         const angle = angleStep * i;
-        const x = center.x + radius * Math.cos(angle);
-        const y = center.y + radius * Math.sin(angle);
+        const x = center.x + center.radius * Math.cos(angle);
+        const y = center.y + center.radius * Math.sin(angle) * 0.8; // Make it more oval
 
         data.push({
           x: x,
@@ -140,7 +117,7 @@ export default function RiskRatioChart({
       });
     });
 
-    return { bubbleData: data, maxCount: currentMaxCount, mainTypeLabelData: labels };
+    return { bubbleData: data, maxCount: currentMaxCount };
   }, [incidents, constructionTypeMap, activeFilters]);
 
   return (
@@ -171,29 +148,49 @@ export default function RiskRatioChart({
                 axisLine={false}
                 hide
               />
-              <ZAxis type="number" dataKey="z" range={[100, 3000]} domain={[0, maxCount > 0 ? maxCount : 1]} />
-              
-              <ReferenceArea x1={0.05} x2={0.48} y1={0.05} y2={0.55} strokeDasharray="3 3" stroke="hsl(var(--border))" fill="hsl(var(--accent)/0.2)" radius={12} />
-              <ReferenceArea x1={0.52} x2={0.95} y1={0.05} y2={0.55} strokeDasharray="3 3" stroke="hsl(var(--border))" fill="hsl(var(--accent)/0.2)" radius={12} />
-              <ReferenceArea x1={0.05} x2={0.48} y1={0.58} y2={0.95} strokeDasharray="3 3" stroke="hsl(var(--border))" fill="hsl(var(--accent)/0.2)" radius={12} />
-              <ReferenceArea x1={0.52} x2={0.95} y1={0.58} y2={0.95} strokeDasharray="3 3" stroke="hsl(var(--border))" fill="hsl(var(--accent)/0.2)" radius={12} />
+              <ZAxis
+                type="number"
+                dataKey="z"
+                range={[200, 4000]}
+                domain={[0, maxCount > 0 ? maxCount : 1]}
+              />
 
-              <Tooltip cursor={{ strokeDasharray: '3 3' }} content={<CustomTooltip />} />
-              
-              <Scatter data={bubbleData}>
+              <Tooltip
+                cursor={{ strokeDasharray: '3 3' }}
+                content={<CustomTooltip />}
+              />
+
+              {Object.entries(MAIN_TYPE_POSITIONS).map(([name, { x, y }]) => (
+                <Scatter
+                  key={name}
+                  data={[{x, y}]}
+                  isAnimationActive={false}
+                  shape={() => null} // Render nothing for the scatter point itself
+                >
+                  <Label
+                    value={name}
+                    position="center"
+                    fill="hsl(var(--foreground))"
+                    fontSize={14}
+                    fontWeight="bold"
+                  />
+                </Scatter>
+              ))}
+
+              <Scatter data={bubbleData} isAnimationActive={false}>
                 {bubbleData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={entry.fill}
-                    stroke={entry.isActive ? 'hsl(var(--primary-foreground))' : 'hsl(var(--primary))'}
+                    stroke={
+                      entry.isActive
+                        ? 'hsl(var(--primary-foreground))'
+                        : 'hsl(var(--primary))'
+                    }
                     strokeWidth={entry.isActive ? 3 : 1}
                     style={{ opacity: entry.isActive ? 1 : 0.6 }}
                   />
                 ))}
-              </Scatter>
-
-              <Scatter data={mainTypeLabelData} dataKey="x" name="labels">
-                 <LabelList dataKey="name" position="top" content={<CustomLabel />} />
               </Scatter>
             </ScatterChart>
           </ResponsiveContainer>
