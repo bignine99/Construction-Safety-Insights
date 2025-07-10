@@ -47,6 +47,8 @@ const CustomizedContent = (props: any) => {
         textAnchor="middle"
         dominantBaseline="middle"
         fill="#fff"
+        stroke="black"
+        strokeWidth="0.1"
         className="text-[10px] font-normal antialiased"
       >
         {name}
@@ -57,6 +59,8 @@ const CustomizedContent = (props: any) => {
         textAnchor="middle"
         dominantBaseline="middle"
         fill="#fff"
+        stroke="black"
+        strokeWidth="0.1"
         className="text-[10px] font-normal antialiased"
       >
         {`(${value}건)`}
