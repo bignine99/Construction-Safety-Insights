@@ -11,11 +11,17 @@ interface AnnualAccidentsChartProps {
 
 export default function AnnualAccidentsChart({ incidents }: AnnualAccidentsChartProps) {
   const dataByYear = incidents.reduce((acc, incident) => {
-    const year = new Date(incident.dateTime).getFullYear().toString();
-    if (!acc[year]) {
-      acc[year] = { year, '사고 건수': 0 };
+    try {
+      const date = new Date(incident.dateTime);
+      if (isNaN(date.getTime())) return acc;
+      const year = date.getFullYear().toString();
+      if (!acc[year]) {
+        acc[year] = { year, '사고 건수': 0 };
+      }
+      acc[year]['사고 건수']++;
+    } catch (e) {
+      // ignore invalid dates
     }
-    acc[year]['사고 건수']++;
     return acc;
   }, {} as Record<string, { year: string; '사고 건수': number }>);
   
@@ -25,7 +31,7 @@ export default function AnnualAccidentsChart({ incidents }: AnnualAccidentsChart
   
   const fullChartData = allYears.map(yearStr => {
       const found = chartData.find(d => d.year === yearStr);
-      return { year: yearStr, '사고 건수': found ? found['사고 건수'] : undefined };
+      return { year: yearStr, '사고 건수': found ? found['사고 건수'] : 0 };
   });
 
   return (
