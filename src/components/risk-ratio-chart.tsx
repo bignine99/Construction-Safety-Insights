@@ -1,12 +1,16 @@
 'use client';
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
+import { scaleLinear } from 'd3-scale';
 import {
-  RadialBar,
-  RadialBarChart,
-  PolarAngleAxis,
   ResponsiveContainer,
+  ScatterChart,
+  XAxis,
+  YAxis,
   Tooltip,
+  Scatter,
+  ZAxis,
+  Cell,
 } from 'recharts';
 import type { Incident } from '@/lib/types';
 import {
@@ -16,105 +20,161 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltipContent } from './ui/chart';
 
 interface RiskRatioChartProps {
   incidents: Incident[];
+  constructionTypeMap: Record<string, string[]>;
+  activeFilters: string[];
 }
 
-const TARGET_CONSTRUCTION_TYPES = ['가설공사', '철근콘크리트공사', '철골공사'];
+interface BubbleData {
+  x: number;
+  y: number;
+  z: number; // size
+  name: string;
+  mainType: string;
+  fill: string;
+  isActive: boolean;
+}
 
-export default function RiskRatioChart({ incidents }: RiskRatioChartProps) {
-  const { percentage } = useMemo(() => {
-    if (incidents.length === 0) {
-      return { percentage: 0 };
-    }
+const MAIN_TYPE_POSITIONS: Record<string, { x: number; y: number; color: string }> = {
+  건축: { x: 0.25, y: 0.25, color: 'hsl(var(--chart-1))' },
+  토목: { x: 0.75, y: 0.25, color: 'hsl(var(--chart-2))' },
+  설비: { x: 0.25, y: 0.75, color: 'hsl(var(--chart-3))' },
+  기타: { x: 0.75, y: 0.75, color: 'hsl(var(--chart-5))' },
+};
 
-    const totalRiskIndex = incidents.reduce((sum, i) => sum + i.riskIndex, 0);
-
-    const selectedIncidents = incidents.filter(i =>
-      TARGET_CONSTRUCTION_TYPES.includes(i.constructionTypeSub)
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="rounded-lg border bg-background p-2 shadow-sm">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col">
+            <span className="text-[0.70rem] uppercase text-muted-foreground">
+              중분류
+            </span>
+            <span className="font-bold text-muted-foreground">{data.name}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[0.70rem] uppercase text-muted-foreground">
+              사고 건수
+            </span>
+            <span className="font-bold">{data.z}</span>
+          </div>
+        </div>
+      </div>
     );
+  }
+  return null;
+};
 
-    const selectedRiskIndex = selectedIncidents.reduce(
-      (sum, i) => sum + i.riskIndex,
-      0
-    );
+export default function RiskRatioChart({
+  incidents,
+  constructionTypeMap,
+  activeFilters,
+}: RiskRatioChartProps) {
+  const bubbleData = useMemo(() => {
+    const subTypeCounts = incidents.reduce((acc, incident) => {
+      const subType = incident.constructionTypeSub;
+      if (subType) {
+        acc[subType] = (acc[subType] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<string, number>);
 
-    const ratio = totalRiskIndex > 0 ? selectedRiskIndex / totalRiskIndex : 0;
+    let data: BubbleData[] = [];
+    const maxCount = Math.max(...Object.values(subTypeCounts), 0);
+    const sizeScale = scaleLinear().domain([0, maxCount]).range([5, 50]);
 
-    return {
-      percentage: ratio * 100,
-    };
-  }, [incidents]);
+    Object.entries(constructionTypeMap).forEach(([mainType, subTypes]) => {
+      const center = MAIN_TYPE_POSITIONS[mainType];
+      if (!center) return;
 
-  const chartData = [{ name: 'ratio', value: percentage }];
+      const angleStep = (2 * Math.PI) / subTypes.length;
+      const radius = 0.15;
 
-  const chartConfig = {
-    value: { label: '비율', color: 'hsl(var(--primary))' },
-    ratio: { label: '비율', color: 'hsl(var(--primary))' },
-  };
+      subTypes.forEach((subType, i) => {
+        const count = subTypeCounts[subType] || 0;
+        if (count === 0) return;
+
+        const angle = angleStep * i;
+        const x = center.x + radius * Math.cos(angle);
+        const y = center.y + radius * Math.sin(angle);
+
+        data.push({
+          x: x,
+          y: y,
+          z: count,
+          name: subType,
+          mainType: mainType,
+          fill: center.color,
+          isActive: activeFilters.includes(subType),
+        });
+      });
+    });
+
+    return data;
+  }, [incidents, constructionTypeMap, activeFilters]);
 
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center p-4 pb-2">
-        <CardTitle>해당 공종 사고 위험 비율</CardTitle>
-        <CardDescription className="text-xs">전체 대비 상대적 위험도</CardDescription>
+        <CardTitle>공종별 사고 분포</CardTitle>
+        <CardDescription className="text-xs">
+          대분류(클러스터)와 중분류(버블) 사고 분포
+        </CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow flex items-center justify-center p-2 pb-0">
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square h-full max-h-[140px]"
-        >
+      <CardContent className="flex-grow p-0">
+        <ChartContainer config={{}} className="w-full h-full min-h-[250px]">
           <ResponsiveContainer>
-            <RadialBarChart
-              data={chartData}
-              startAngle={90}
-              endAngle={-270}
-              innerRadius="75%"
-              outerRadius="90%"
-            >
-              <Tooltip
-                content={
-                  <ChartTooltipContent
-                    formatter={value => `${(value as number).toFixed(2)}%`}
-                    label="선택 공종 위험 비율"
-                  />
-                }
-              />
-              <PolarAngleAxis
+            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+              <XAxis
                 type="number"
-                domain={[0, 100]}
-                dataKey="value"
+                dataKey="x"
+                domain={[0, 1]}
                 tick={false}
+                axisLine={false}
+                hide
               />
-              <RadialBar
-                background
-                dataKey="value"
-                cornerRadius={10}
-                className="fill-primary"
+              <YAxis
+                type="number"
+                dataKey="y"
+                domain={[0, 1]}
+                tick={false}
+                axisLine={false}
+                hide
               />
-              <g>
-                <text
-                  x="50%"
-                  y="50%"
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  className="fill-foreground text-xl font-bold"
-                >
-                  {`${percentage.toFixed(2)}%`}
-                </text>
-                <text
-                  x="50%"
-                  y="65%"
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  className="fill-muted-foreground text-xs"
-                >
-                  (가설,철콘,철골)
-                </text>
-              </g>
-            </RadialBarChart>
+              <ZAxis type="number" dataKey="z" range={[100, 2000]} />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} content={<CustomTooltip />} />
+              
+              {/* Add labels for main categories */}
+              {Object.entries(MAIN_TYPE_POSITIONS).map(([name, { x, y }]) => (
+                <XAxis
+                  key={name}
+                  xAxisId={`x-label-${name}`}
+                  type="number"
+                  domain={[0, 1]}
+                  tick={false}
+                  axisLine={false}
+                  hide
+                  label={{ value: name, position: 'insideTop', dy: -20, fill: 'hsl(var(--foreground))', fontSize: 14, fontWeight: 'bold' }}
+                />
+              ))}
+
+              <Scatter data={bubbleData}>
+                {bubbleData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.fill}
+                    stroke={entry.isActive ? 'hsl(var(--primary-foreground))' : 'hsl(var(--primary))'}
+                    strokeWidth={entry.isActive ? 3 : 1}
+                    style={{ opacity: entry.isActive ? 1 : 0.6 }}
+                  />
+                ))}
+              </Scatter>
+            </ScatterChart>
           </ResponsiveContainer>
         </ChartContainer>
       </CardContent>

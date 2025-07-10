@@ -183,7 +183,11 @@ export default function DashboardClient({
               <CauseSubtypeBarChart incidents={filteredIncidents} />
               <ResultMainChart incidents={filteredIncidents} />
               <CauseResultMatrix incidents={filteredIncidents} />
-              <RiskRatioChart incidents={filteredIncidents} />
+              <RiskRatioChart 
+                incidents={filteredIncidents} 
+                constructionTypeMap={constructionTypeMap}
+                activeFilters={filters.constructionTypeSub}
+              />
             </div>
           </div>
         </div>
