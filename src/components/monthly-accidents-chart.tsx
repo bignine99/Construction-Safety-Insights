@@ -94,9 +94,14 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
                 axisLine={false} 
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                 tickFormatter={(value) => {
-                  // Show 'YY format only for January
-                  if (typeof value === 'string' && value.endsWith('-01')) {
-                    return `'${value.substring(2, 4)}`;
+                  if (typeof value === 'string') {
+                    const month = value.substring(5, 7);
+                    if (month === '01') {
+                      return `'${value.substring(2, 4)}`; // 'YY for January
+                    }
+                    if (month === '07') {
+                      return '7월';
+                    }
                   }
                   return '';
                 }}
