@@ -69,12 +69,12 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
   }, [incidents]);
 
   return (
-    <Card>
+    <Card className="flex flex-col">
       <CardHeader className="items-center p-4 pb-2">
         <CardTitle>월별 사고 발생 현황</CardTitle>
       </CardHeader>
-      <CardContent className="p-2 pt-0">
-        <ChartContainer config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }} className="h-[220px] w-full">
+      <CardContent className="flex-grow p-2 pt-0">
+        <ChartContainer config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }} className="h-full w-full">
           <ResponsiveContainer>
             <LineChart
               data={chartData}

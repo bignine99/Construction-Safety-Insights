@@ -24,12 +24,12 @@ export default function ObjectSubtypeBarChart({ incidents }: ObjectSubtypeBarCha
   }, [incidents]);
 
   return (
-    <Card>
+    <Card className="flex flex-col">
       <CardHeader className="items-center p-4 pb-2">
         <CardTitle>작업별 사고위험지수</CardTitle>
       </CardHeader>
-      <CardContent className="p-2 pt-0">
-        <ChartContainer config={{ '사고위험지수': { label: '사고위험지수', color: 'hsl(var(--chart-3))' } }} className="h-[220px] w-full">
+      <CardContent className="flex-grow p-2 pt-0">
+        <ChartContainer config={{ '사고위험지수': { label: '사고위험지수', color: 'hsl(var(--chart-3))' } }} className="h-full w-full">
           <ResponsiveContainer>
             <RechartsBarChart 
               data={chartData} 
