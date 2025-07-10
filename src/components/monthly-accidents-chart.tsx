@@ -12,23 +12,32 @@ interface MonthlyAccidentsChartProps {
 
 export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsChartProps) {
   const chartData = useMemo(() => {
-    const dataByYear = incidents.reduce((acc, incident) => {
-      const year = new Date(incident.dateTime).getFullYear().toString();
-      if (!acc[year]) {
-        acc[year] = { year, '사고 건수': 0 };
+    const dataByMonth = incidents.reduce((acc, incident) => {
+      try {
+        const date = new Date(incident.dateTime);
+        const year = date.getFullYear();
+        const month = date.getMonth(); // 0-11
+        // Create a key like "2023-01" for sorting and grouping
+        const key = `${year}-${String(month + 1).padStart(2, '0')}`;
+        
+        if (!acc[key]) {
+          acc[key] = { month: key, '사고 건수': 0 };
+        }
+        acc[key]['사고 건수']++;
+      } catch (e) {
+        // Ignore incidents with invalid date
       }
-      acc[year]['사고 건수']++;
       return acc;
-    }, {} as Record<string, { year: string; '사고 건수': number }>);
+    }, {} as Record<string, { month: string; '사고 건수': number }>);
     
-    return Object.values(dataByYear)
-      .sort((a, b) => a.year.localeCompare(b.year));
+    return Object.values(dataByMonth)
+      .sort((a, b) => a.month.localeCompare(b.month));
   }, [incidents]);
 
   return (
     <Card>
       <CardHeader className="items-center p-4 pb-2">
-        <CardTitle>년도별 사고 발생 현황</CardTitle>
+        <CardTitle>월별 사고 발생 현황</CardTitle>
       </CardHeader>
       <CardContent className="p-2 pt-0">
         <ChartContainer config={{ '사고 건수': { label: '사고 건수', color: 'hsl(var(--primary))' } }} className="h-[220px] w-full">
@@ -38,10 +47,24 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
               margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
             >
               <XAxis 
-                dataKey="year" 
+                dataKey="month" 
                 tickLine={false} 
                 axisLine={false} 
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
+                tickFormatter={(value) => {
+                  if (typeof value === 'string') {
+                    // Show label only for January, format as 'YY-01
+                    if (value.endsWith('-01')) {
+                      return value.substring(2);
+                    }
+                    // Show a marker for other months for better spacing
+                    if (['04', '07', '10'].some(m => value.endsWith(`-${m}`))) {
+                        return '·';
+                    }
+                  }
+                  return '';
+                }}
+                interval="preserveStartEnd"
               />
               <YAxis
                 tickLine={false}
