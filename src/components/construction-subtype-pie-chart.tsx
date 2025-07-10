@@ -47,17 +47,17 @@ const CustomizedContent = (props: any) => {
         textAnchor="middle"
         dominantBaseline="middle"
         fill="#fff"
-        className="text-xs font-medium"
+        className="text-[10px] font-normal"
       >
         {name}
       </text>
        <text
         x={x + width / 2}
-        y={y + height / 2 + 14}
+        y={y + height / 2 + 12}
         textAnchor="middle"
         dominantBaseline="middle"
         fill="#fff"
-        className="text-xs"
+        className="text-[10px]"
       >
         {`(${value}건)`}
       </text>
