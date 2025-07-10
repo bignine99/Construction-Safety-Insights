@@ -13,11 +13,20 @@ interface MonthlyAccidentsChartProps {
 export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsChartProps) {
   const chartData = useMemo(() => {
     const dataByMonth = incidents.reduce((acc, incident) => {
+      // YYYY.MM.DD. 형식의 날짜를 파싱하기 위한 전처리
+      const dateString = String(incident.dateTime || '').replace(/\.$/g, '');
+      if (!dateString) return acc;
+      
       try {
-        const date = new Date(incident.dateTime);
+        const date = new Date(dateString.replace(/\./g, '-'));
+        // 유효하지 않은 날짜는 건너뜁니다.
+        if (isNaN(date.getTime())) {
+          return acc;
+        }
+
         const year = date.getFullYear();
         const month = date.getMonth(); // 0-11
-        // Create a key like "2023-01" for sorting and grouping
+        // 정렬 및 그룹화를 위해 'YYYY-MM' 형식의 키를 생성합니다.
         const key = `${year}-${String(month + 1).padStart(2, '0')}`;
         
         if (!acc[key]) {
@@ -25,7 +34,7 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
         }
         acc[key]['사고 건수']++;
       } catch (e) {
-        // Ignore incidents with invalid date
+        // 날짜 파싱 중 오류가 발생한 데이터는 무시합니다.
       }
       return acc;
     }, {} as Record<string, { month: string; '사고 건수': number }>);
@@ -53,18 +62,15 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                 tickFormatter={(value) => {
                   if (typeof value === 'string') {
-                    // Show label only for January, format as 'YY-01
+                    // 1월에만 'YY 형식으로 연도를 표시합니다.
                     if (value.endsWith('-01')) {
-                      return value.substring(2);
-                    }
-                    // Show a marker for other months for better spacing
-                    if (['04', '07', '10'].some(m => value.endsWith(`-${m}`))) {
-                        return '·';
+                      return `'${value.substring(2, 4)}`;
                     }
                   }
                   return '';
                 }}
                 interval="preserveStartEnd"
+                domain={['dataMin', 'dataMax']}
               />
               <YAxis
                 tickLine={false}
@@ -72,12 +78,13 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
                 tickFormatter={(value) => value.toLocaleString()}
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                 label={{ value: '사고 건수', angle: -90, position: 'insideLeft', offset: 10, fill: 'hsl(var(--muted-foreground))' }}
+                domain={[0, 'auto']}
               />
               <Tooltip
                 cursor={{ stroke: 'hsl(var(--border))', strokeDasharray: '3 3' }}
                 content={<ChartTooltipContent indicator="dot" />}
               />
-              <Line type="monotone" dataKey="사고 건수" stroke="hsl(var(--primary))" strokeWidth={2} activeDot={{ r: 8 }} />
+              <Line type="monotone" dataKey="사고 건수" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
