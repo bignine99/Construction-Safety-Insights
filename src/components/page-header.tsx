@@ -26,10 +26,10 @@ export default function PageHeader({
             />
           </div>
           <div className="pb-1 text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-primary md:text-3xl">
+            <h1 className="text-3xl font-bold tracking-tight text-primary md:text-4xl">
               {title}
             </h1>
-            <p className="mt-1 text-xs text-primary/90 md:text-sm">
+            <p className="mt-1 text-sm text-primary/90 md:text-base">
               {subtitle}
             </p>
           </div>
