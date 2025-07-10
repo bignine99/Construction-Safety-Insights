@@ -13,29 +13,25 @@ interface MonthlyAccidentsChartProps {
 export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsChartProps) {
   const chartData = useMemo(() => {
     const dataByMonth = incidents.reduce((acc, incident) => {
-      // YYYY.MM.DD. 형식의 날짜를 파싱하기 위한 전처리
       const dateString = String(incident.dateTime || '').replace(/\.$/g, '');
       if (!dateString) return acc;
       
       try {
         const date = new Date(dateString.replace(/\./g, '-'));
-        // 유효하지 않은 날짜는 건너뜁니다.
         if (isNaN(date.getTime())) {
           return acc;
         }
 
         const year = date.getFullYear();
-        const month = date.getMonth(); // 0-11
-        // 정렬 및 그룹화를 위해 'YYYY-MM' 형식의 키를 생성합니다.
+        const month = date.getMonth();
         const key = `${year}-${String(month + 1).padStart(2, '0')}`;
         
         if (!acc[key]) {
           acc[key] = { month: key, '사고 건수': 0 };
         }
-        // 사고 건수를 1씩 증가시킵니다. (위험지수가 아닌)
         acc[key]['사고 건수']++;
       } catch (e) {
-        // 날짜 파싱 중 오류가 발생한 데이터는 무시합니다.
+        // Ignore errors from invalid date formats
       }
       return acc;
     }, {} as Record<string, { month: string; '사고 건수': number }>);
@@ -62,11 +58,8 @@ export default function MonthlyAccidentsChart({ incidents }: MonthlyAccidentsCha
                 axisLine={false} 
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                 tickFormatter={(value) => {
-                  if (typeof value === 'string') {
-                    // 1월에만 'YY 형식으로 연도를 표시합니다.
-                    if (value.endsWith('-01')) {
-                      return `'${value.substring(2, 4)}`;
-                    }
+                  if (typeof value === 'string' && value.endsWith('-01')) {
+                    return `'${value.substring(2, 4)}`;
                   }
                   return '';
                 }}
