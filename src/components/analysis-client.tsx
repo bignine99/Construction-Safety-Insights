@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { getAiAnalysis, performVisualAnalysisAction } from '@/app/actions';
 import { Loader2, HelpCircle, Paperclip, Sparkles, Wand2, X, Image as ImageIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from './ui/badge';
 import { Skeleton } from './ui/skeleton';
 import { Input } from './ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -22,6 +21,19 @@ function fileToDataURI(file: File): Promise<string> {
     reader.readAsDataURL(file);
   });
 }
+
+const LoadingSkeleton = () => (
+    <Card>
+      <CardHeader>
+        <Skeleton className="h-6 w-1/2" />
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <Skeleton className="h-5 w-full" />
+        <Skeleton className="h-5 w-5/6" />
+        <Skeleton className="h-5 w-full" />
+      </CardContent>
+    </Card>
+);
 
 export default function AnalysisClient({ incidents }: { incidents: Incident[] }) {
   const { toast } = useToast();
@@ -85,6 +97,14 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
     }
   };
 
+  const renderBulletPoints = (items: string[]) => (
+    <ul className="list-disc space-y-2 pl-5 text-sm">
+      {items.map((item, index) => (
+        <li key={index}>{item}</li>
+      ))}
+    </ul>
+  );
+
   return (
     <div className="flex flex-col gap-6">
       <Card>
@@ -95,7 +115,7 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <Button onClick={handleAnalysis} disabled={loading}>
+          <Button onClick={handleAnalysis} disabled={loading || incidents.length === 0}>
             {loading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
@@ -105,57 +125,42 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
           </Button>
 
           {loading && (
-            <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <Skeleton className="h-6 w-1/2" />
-                </CardHeader>
-                <CardContent className="flex flex-wrap gap-2">
-                  <Skeleton className="h-8 w-24" />
-                  <Skeleton className="h-8 w-32" />
-                  <Skeleton className="h-8 w-28" />
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <Skeleton className="h-6 w-1/2" />
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Skeleton className="h-5 w-full" />
-                  <Skeleton className="h-5 w-5/6" />
-                  <Skeleton className="h-5 w-full" />
-                </CardContent>
-              </Card>
+            <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-3">
+              <LoadingSkeleton />
+              <LoadingSkeleton />
+              <LoadingSkeleton />
             </div>
           )}
 
           {analysisResult && (
-            <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-2">
+            <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-3">
               <Card className="shadow-lg">
                 <CardHeader>
-                  <CardTitle>핵심 사고 테마</CardTitle>
+                  <CardTitle>데이터 분석 결과</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {analysisResult.themes.map((theme, index) => (
-                      <Badge key={index} variant="secondary" className="px-3 py-1 text-sm">
-                        {theme}
-                      </Badge>
-                    ))}
-                  </div>
+                  <ScrollArea className="h-48">
+                    {renderBulletPoints(analysisResult.analysisResults)}
+                  </ScrollArea>
                 </CardContent>
               </Card>
               <Card className="shadow-lg">
                 <CardHeader>
-                  <CardTitle>AI 추천 예방 대책</CardTitle>
+                  <CardTitle>재발 방지 대책</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ScrollArea className="h-48">
-                    <ul className="list-disc space-y-2 pl-5 text-sm">
-                      {analysisResult.preventativeMeasures.map((measure, index) => (
-                        <li key={index}>{measure}</li>
-                      ))}
-                    </ul>
+                    {renderBulletPoints(analysisResult.preventativeMeasures)}
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle>안전작업 지시사항</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-48">
+                    {renderBulletPoints(analysisResult.safetyInstructions)}
                   </ScrollArea>
                 </CardContent>
               </Card>

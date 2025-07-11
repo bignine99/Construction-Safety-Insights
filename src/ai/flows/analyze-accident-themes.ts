@@ -2,7 +2,7 @@
 'use server';
 
 /**
- * @fileOverview Analyzes accident descriptions to identify themes and suggest preventative measures.
+ * @fileOverview Analyzes accident descriptions to identify themes, suggest preventative measures, and provide safety instructions.
  *
  * - analyzeAccidentThemes - A function that handles the analysis of accident themes.
  * - AnalyzeAccidentThemesInput - The input type for the analyzeAccidentThemes function.
@@ -22,12 +22,15 @@ export type AnalyzeAccidentThemesInput = z.infer<
 >;
 
 const AnalyzeAccidentThemesOutputSchema = z.object({
-  themes: z
+  analysisResults: z
     .array(z.string())
-    .describe('The identified themes from the accident descriptions.'),
+    .describe('The identified key themes or results from the accident data analysis.'),
   preventativeMeasures: z
     .array(z.string())
-    .describe('Suggested preventative measures based on the themes.'),
+    .describe('Suggested preventative measures based on the analysis.'),
+  safetyInstructions: z
+    .array(z.string())
+    .describe('Actionable safety work instructions for field workers.'),
 });
 export type AnalyzeAccidentThemesOutput = z.infer<
   typeof AnalyzeAccidentThemesOutputSchema
@@ -43,16 +46,19 @@ const analyzeAccidentThemesPrompt = ai.definePrompt({
   name: 'analyzeAccidentThemesPrompt',
   input: {schema: AnalyzeAccidentThemesInputSchema},
   output: {schema: AnalyzeAccidentThemesOutputSchema},
-  prompt: `You are a safety analyst. Analyze the following accident descriptions to identify common themes and suggest preventative measures.
+  prompt: `You are a construction safety expert AI. Based on the provided list of accident cause descriptions, please perform a detailed analysis. Your response must be in Korean.
 
-Accident Descriptions:
+Analyze the following accident descriptions:
 {{#each accidentDescriptions}}
 - {{{this}}}
 {{/each}}
 
-Identify the themes and suggest preventative measures based on the themes.
+Based on your analysis, generate the following three sections. Each item should be a concise bullet point.
 
-Output the themes and preventative measures.`,
+1.  **데이터 분석 결과 (Data Analysis Results)**: Identify the primary causes and recurring patterns from the accident data.
+2.  **재발 방지 대책 (Recurrence Prevention Measures)**: Propose strategic measures to prevent similar accidents in the future.
+3.  **안전작업 지시사항 (Safety Work Instructions)**: Provide clear, actionable safety instructions for workers on site.
+`,
 });
 
 const analyzeAccidentThemesFlow = ai.defineFlow(

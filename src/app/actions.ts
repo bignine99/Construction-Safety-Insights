@@ -9,8 +9,9 @@ export async function getAiAnalysis(
 ): Promise<AiAnalysis> {
   if (!accidentDescriptions || accidentDescriptions.length === 0) {
     return {
-      themes: [],
-      preventativeMeasures: ['분석할 사고 데이터가 없습니다.'],
+      analysisResults: ['분석할 사고 데이터가 없습니다.'],
+      preventativeMeasures: [],
+      safetyInstructions: [],
     };
   }
 
@@ -20,8 +21,9 @@ export async function getAiAnalysis(
   } catch (error) {
     console.error('AI analysis failed:', error);
     return {
-      themes: [],
-      preventativeMeasures: ['AI 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'],
+      analysisResults: ['AI 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'],
+      preventativeMeasures: [],
+      safetyInstructions: [],
     };
   }
 }

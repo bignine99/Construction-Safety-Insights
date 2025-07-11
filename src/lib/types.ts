@@ -23,8 +23,9 @@ export interface Incident {
 }
 
 export interface AiAnalysis {
-  themes: string[];
+  analysisResults: string[];
   preventativeMeasures: string[];
+  safetyInstructions: string[];
 }
 
 export interface VisualAnalysisInput {
