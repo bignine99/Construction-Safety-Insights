@@ -1,8 +1,10 @@
+// src/components/dashboard-client.tsx
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import type { Incident } from '@/lib/types';
 import type { IncidentFilters } from '@/services/incident.service';
+import { getIncidents } from '@/services/incident.service';
 import FilterSidebar from '@/components/filter-sidebar';
 import DashboardMetrics from '@/components/dashboard-metrics';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
@@ -32,63 +34,75 @@ const constructionTypeMap: Record<string, string[]> = {
   기타: ['기타'],
 };
 
-function ChartsLoadingSkeleton() {
-    return (
-        <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 9 }).map((_, i) => (
-                <Skeleton key={i} className="h-[300px] w-full rounded-lg" />
-            ))}
-        </div>
-    );
+function FullPageLoadingSkeleton() {
+  return (
+    <div className="flex flex-1 flex-col overflow-auto p-6 pt-2">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-24 w-full rounded-lg" />
+        ))}
+      </div>
+      <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 9 }).map((_, i) => (
+          <Skeleton key={i} className="h-[300px] w-full rounded-lg" />
+        ))}
+      </div>
+    </div>
+  );
 }
 
-interface DashboardClientProps {
-    allIncidents: Incident[];
-    uniqueProjectOwners: string[];
-    uniqueProjectTypes: string[];
-    uniqueConstructionTypeMains: string[];
-    uniqueConstructionTypeSubs: string[];
-    uniqueObjectMains: string[];
-    uniqueCauseMains: string[];
-    uniqueResultMains: string[];
-}
-
-export default function DashboardClient({
-    allIncidents,
-    uniqueProjectOwners,
-    uniqueProjectTypes,
-    uniqueConstructionTypeMains,
-    uniqueConstructionTypeSubs,
-    uniqueObjectMains,
-    uniqueCauseMains,
-    uniqueResultMains,
-}: DashboardClientProps) {
+export default function DashboardClient() {
+  const [allIncidents, setAllIncidents] = useState<Incident[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<IncidentFilters>({
     projectOwner: [], projectType: [], constructionTypeMain: [],
     constructionTypeSub: [], objectMain: [], causeMain: [], resultMain: [],
   });
-  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true);
+      const incidents = await getIncidents();
+      setAllIncidents(incidents);
+      setIsLoading(false);
+    }
+    loadData();
+  }, []);
+
+  const uniqueValues = useMemo(() => {
+    if (isLoading) {
+      return {
+        uniqueProjectOwners: [], uniqueProjectTypes: [], uniqueConstructionTypeMains: [],
+        uniqueConstructionTypeSubs: [], uniqueObjectMains: [], uniqueCauseMains: [], uniqueResultMains: []
+      };
+    }
+    return {
+      uniqueProjectOwners: [...new Set(allIncidents.map((i) => i.projectOwner).filter(Boolean))],
+      uniqueProjectTypes: [...new Set(allIncidents.map((i) => i.projectType).filter(Boolean))],
+      uniqueConstructionTypeMains: [...new Set(allIncidents.map((i) => i.constructionTypeMain).filter(Boolean))],
+      uniqueConstructionTypeSubs: [...new Set(allIncidents.map((i) => i.constructionTypeSub).filter(Boolean))],
+      uniqueObjectMains: [...new Set(allIncidents.map((i) => i.objectMain).filter(Boolean))],
+      uniqueCauseMains: [...new Set(allIncidents.map((i) => i.causeMain).filter(Boolean))],
+      uniqueResultMains: [...new Set(allIncidents.map((i) => i.resultMain).filter(Boolean))],
+    };
+  }, [isLoading, allIncidents]);
 
   const filteredIncidents = useMemo(() => {
-    setIsLoading(true);
-    const result = allIncidents.filter(incident => {
-        if (filters.projectOwner?.length && !filters.projectOwner.includes(incident.projectOwner)) return false;
-        if (filters.projectType?.length && !filters.projectType.includes(incident.projectType)) return false;
-        if (filters.constructionTypeMain?.length && !filters.constructionTypeMain.includes(incident.constructionTypeMain)) return false;
-        if (filters.constructionTypeSub?.length && !filters.constructionTypeSub.includes(incident.constructionTypeSub)) return false;
-        if (filters.objectMain?.length && !filters.objectMain.includes(incident.objectMain)) return false;
-        if (filters.causeMain?.length && !filters.causeMain.includes(incident.causeMain)) return false;
-        if (filters.resultMain?.length && !filters.resultMain.includes(incident.resultMain)) return false;
-        return true;
+    return allIncidents.filter(incident => {
+      if (filters.projectOwner?.length && !filters.projectOwner.includes(incident.projectOwner)) return false;
+      if (filters.projectType?.length && !filters.projectType.includes(incident.projectType)) return false;
+      if (filters.constructionTypeMain?.length && !filters.constructionTypeMain.includes(incident.constructionTypeMain)) return false;
+      if (filters.constructionTypeSub?.length && !filters.constructionTypeSub.includes(incident.constructionTypeSub)) return false;
+      if (filters.objectMain?.length && !filters.objectMain.includes(incident.objectMain)) return false;
+      if (filters.causeMain?.length && !filters.causeMain.includes(incident.causeMain)) return false;
+      if (filters.resultMain?.length && !filters.resultMain.includes(incident.resultMain)) return false;
+      return true;
     });
-    setIsLoading(false);
-    return result;
   }, [filters, allIncidents]);
-
 
   const constructionTypeSubOptions = useMemo(() => {
     if (!filters.constructionTypeMain || filters.constructionTypeMain.length === 0) {
-      return uniqueConstructionTypeSubs;
+      return uniqueValues.uniqueConstructionTypeSubs;
     }
     const options = new Set<string>();
     filters.constructionTypeMain.forEach(mainType => {
@@ -96,7 +110,7 @@ export default function DashboardClient({
       subs.forEach(sub => options.add(sub));
     });
     return Array.from(options);
-  }, [filters.constructionTypeMain, uniqueConstructionTypeSubs]);
+  }, [filters.constructionTypeMain, uniqueValues.uniqueConstructionTypeSubs]);
 
   return (
     <SidebarProvider>
@@ -104,14 +118,15 @@ export default function DashboardClient({
         <FilterSidebar
           filters={filters}
           onFilterChange={setFilters}
-          projectOwners={uniqueProjectOwners}
-          projectTypes={uniqueProjectTypes}
-          constructionTypeMains={uniqueConstructionTypeMains}
-          constructionTypeSubs={uniqueConstructionTypeSubs}
-          objectMains={uniqueObjectMains}
-          causeMains={uniqueCauseMains}
-          resultMains={uniqueResultMains}
+          projectOwners={uniqueValues.uniqueProjectOwners}
+          projectTypes={uniqueValues.uniqueProjectTypes}
+          constructionTypeMains={uniqueValues.uniqueConstructionTypeMains}
+          constructionTypeSubs={uniqueValues.uniqueConstructionTypeSubs}
+          objectMains={uniqueValues.uniqueObjectMains}
+          causeMains={uniqueValues.uniqueCauseMains}
+          resultMains={uniqueValues.uniqueResultMains}
           constructionTypeSubOptions={constructionTypeSubOptions}
+          disabled={isLoading}
         />
       </Sidebar>
       <SidebarInset>
@@ -123,9 +138,9 @@ export default function DashboardClient({
             />
             <DashboardNav />
           </div>
-          <div id="page-content" className="flex flex-1 flex-col overflow-auto p-6 pt-2">
-            <DashboardMetrics incidents={filteredIncidents} />
-            {isLoading ? <ChartsLoadingSkeleton /> : (
+          {isLoading ? <FullPageLoadingSkeleton /> : (
+            <div id="page-content" className="flex flex-1 flex-col overflow-auto p-6 pt-2">
+              <DashboardMetrics incidents={filteredIncidents} />
               <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <AnnualAccidentsChart incidents={filteredIncidents} />
                 <MonthlyAccidentTrendChart incidents={filteredIncidents} />
@@ -135,14 +150,14 @@ export default function DashboardClient({
                 <CauseSubtypeBarChart incidents={filteredIncidents} />
                 <ResultMainChart incidents={filteredIncidents} />
                 <CauseResultMatrix incidents={filteredIncidents} />
-                <RiskRatioChart 
-                  incidents={filteredIncidents} 
+                <RiskRatioChart
+                  incidents={filteredIncidents}
                   constructionTypeMap={constructionTypeMap}
                   activeFilters={filters.constructionTypeSub || []}
                 />
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </SidebarInset>
     </SidebarProvider>

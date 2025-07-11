@@ -27,6 +27,7 @@ interface FilterSidebarProps {
   causeMains: string[];
   resultMains: string[];
   constructionTypeSubOptions: string[];
+  disabled?: boolean;
 }
 
 export default function FilterSidebar({
@@ -40,6 +41,7 @@ export default function FilterSidebar({
   causeMains,
   resultMains,
   constructionTypeSubOptions,
+  disabled = false,
 }: FilterSidebarProps) {
   const { toast } = useToast();
 
@@ -82,7 +84,7 @@ export default function FilterSidebar({
       <div className="flex flex-1 flex-col space-y-4 overflow-y-auto p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold">필터</h2>
-          <Button variant="ghost" size="sm" onClick={handleReset}>
+          <Button variant="ghost" size="sm" onClick={handleReset} disabled={disabled}>
             초기화
           </Button>
         </div>
@@ -99,6 +101,7 @@ export default function FilterSidebar({
               defaultValue={filters.projectOwner}
               placeholder="전체"
               className="mt-1"
+              disabled={disabled}
             />
           </div>
           <div>
@@ -113,6 +116,7 @@ export default function FilterSidebar({
               defaultValue={filters.projectType}
               placeholder="전체"
               className="mt-1"
+              disabled={disabled}
             />
           </div>
           <div>
@@ -134,6 +138,7 @@ export default function FilterSidebar({
               defaultValue={filters.constructionTypeMain}
               placeholder="전체"
               className="mt-1"
+              disabled={disabled}
             />
           </div>
           <div>
@@ -151,7 +156,7 @@ export default function FilterSidebar({
               defaultValue={filters.constructionTypeSub}
               placeholder="전체"
               className="mt-1"
-              disabled={filters.constructionTypeMain.length === 0}
+              disabled={disabled || filters.constructionTypeMain.length === 0}
             />
           </div>
           <div>
@@ -166,6 +171,7 @@ export default function FilterSidebar({
               defaultValue={filters.objectMain}
               placeholder="전체"
               className="mt-1"
+              disabled={disabled}
             />
           </div>
           <div>
@@ -180,6 +186,7 @@ export default function FilterSidebar({
               defaultValue={filters.causeMain}
               placeholder="전체"
               className="mt-1"
+              disabled={disabled}
             />
           </div>
           <div>
@@ -194,6 +201,7 @@ export default function FilterSidebar({
               defaultValue={filters.resultMain}
               placeholder="전체"
               className="mt-1"
+              disabled={disabled}
             />
           </div>
         </div>
