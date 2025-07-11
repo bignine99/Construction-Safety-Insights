@@ -1,8 +1,22 @@
 'use server';
 
+import type { Incident } from '@/lib/types';
+import { getIncidents as fetchIncidents } from '@/services/incident.service';
 import { analyzeAccidentThemes } from '@/ai/flows/analyze-accident-themes';
 import { performVisualAnalysis } from '@/ai/flows/perform-visual-analysis';
 import type { AiAnalysis, VisualAnalysisInput } from '@/lib/types';
+
+// We rename the imported getIncidents to avoid confusion with the exported action.
+export async function getIncidents(): Promise<Incident[]> {
+  try {
+    const incidents = await fetchIncidents();
+    return incidents;
+  } catch (error) {
+    console.error('Server action getIncidents failed:', error);
+    // Return empty array on error to allow the frontend to handle it gracefully.
+    return [];
+  }
+}
 
 export async function getAiAnalysis(
   accidentDescriptions: string[]

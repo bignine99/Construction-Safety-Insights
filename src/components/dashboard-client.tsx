@@ -4,7 +4,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { Incident } from '@/lib/types';
 import type { IncidentFilters } from '@/services/incident.service';
-import { getIncidents } from '@/services/incident.service';
+import { getIncidents } from '@/app/actions'; // Import from actions
 import FilterSidebar from '@/components/filter-sidebar';
 import DashboardMetrics from '@/components/dashboard-metrics';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
