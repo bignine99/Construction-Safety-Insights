@@ -1,3 +1,4 @@
+// src/components/analysis-client.tsx
 'use client';
 
 import { useState, useRef } from 'react';
