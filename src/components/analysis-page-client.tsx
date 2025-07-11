@@ -151,7 +151,7 @@ export default function AnalysisPageClient({
             subtitle="AI 기반 사건사고 데이터베이스 심층 분석"
           />
           <DashboardNav />
-          <div className="flex flex-1 flex-col gap-6">
+          <div id="page-content" className="flex flex-1 flex-col gap-6">
             <FilteredIncidentsTable incidents={filteredIncidents} />
             <AnalysisClient incidents={filteredIncidents} />
           </div>
