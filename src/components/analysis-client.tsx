@@ -6,7 +6,7 @@ import type { AiAnalysis, Incident, VisualAnalysisInput } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getAiAnalysis, performVisualAnalysisAction } from '@/app/actions';
-import { Loader2, HelpCircle, Paperclip, Sparkles, Wand2, X, Image as ImageIcon } from 'lucide-react';
+import { Loader2, HelpCircle, Paperclip, Sparkles, Wand2, X, RotateCcw } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from './ui/skeleton';
 import { Input } from './ui/input';
@@ -107,6 +107,16 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
       setQaLoading(false);
     }
   };
+
+  const handleResetQuestion = () => {
+    setQuestion('');
+    setAnswer('');
+    setUploadedImage(null);
+    setQaLoading(false);
+    if(fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }
 
   const renderBulletPoints = (items: string[]) => (
     <ul className="list-disc space-y-2 pl-5 text-sm">
@@ -214,6 +224,10 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
             <Button onClick={handleAskQuestion} disabled={qaLoading}>
               {qaLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
               질문하기
+            </Button>
+            <Button variant="secondary" onClick={handleResetQuestion} disabled={qaLoading}>
+              <RotateCcw className="mr-2 h-4 w-4" />
+              새 질문
             </Button>
           </div>
           {uploadedImage && (
