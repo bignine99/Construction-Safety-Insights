@@ -193,7 +193,6 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-primary">
-            <HelpCircle className="h-6 w-6" />
             AI에게 물어 보세요
           </CardTitle>
           <CardDescription className="text-primary/90">
