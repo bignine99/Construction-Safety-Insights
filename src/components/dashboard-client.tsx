@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import type { Incident } from '@/lib/types';
-import { getIncidents, type IncidentFilters } from '@/services/incident.service';
+import type { IncidentFilters } from '@/services/incident.service';
 import FilterSidebar from '@/components/filter-sidebar';
 import DashboardMetrics from '@/components/dashboard-metrics';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
@@ -43,7 +43,7 @@ function ChartsLoadingSkeleton() {
 }
 
 interface DashboardClientProps {
-    initialIncidents: Incident[];
+    allIncidents: Incident[];
     uniqueProjectOwners: string[];
     uniqueProjectTypes: string[];
     uniqueConstructionTypeMains: string[];
@@ -54,7 +54,7 @@ interface DashboardClientProps {
 }
 
 export default function DashboardClient({
-    initialIncidents,
+    allIncidents,
     uniqueProjectOwners,
     uniqueProjectTypes,
     uniqueConstructionTypeMains,
@@ -67,20 +67,24 @@ export default function DashboardClient({
     projectOwner: [], projectType: [], constructionTypeMain: [],
     constructionTypeSub: [], objectMain: [], causeMain: [], resultMain: [],
   });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [filteredIncidents, setFilteredIncidents] = useState<Incident[]>(initialIncidents);
-  const [isLoading, setIsLoading] = useState(true);
+  const filteredIncidents = useMemo(() => {
+    setIsLoading(true);
+    const result = allIncidents.filter(incident => {
+        if (filters.projectOwner?.length && !filters.projectOwner.includes(incident.projectOwner)) return false;
+        if (filters.projectType?.length && !filters.projectType.includes(incident.projectType)) return false;
+        if (filters.constructionTypeMain?.length && !filters.constructionTypeMain.includes(incident.constructionTypeMain)) return false;
+        if (filters.constructionTypeSub?.length && !filters.constructionTypeSub.includes(incident.constructionTypeSub)) return false;
+        if (filters.objectMain?.length && !filters.objectMain.includes(incident.objectMain)) return false;
+        if (filters.causeMain?.length && !filters.causeMain.includes(incident.causeMain)) return false;
+        if (filters.resultMain?.length && !filters.resultMain.includes(incident.resultMain)) return false;
+        return true;
+    });
+    setIsLoading(false);
+    return result;
+  }, [filters, allIncidents]);
 
-  useEffect(() => {
-    const fetchFilteredData = async () => {
-      setIsLoading(true);
-      const incidents = await getIncidents(filters);
-      setFilteredIncidents(incidents);
-      setIsLoading(false);
-    };
-
-    fetchFilteredData();
-  }, [filters]);
 
   const constructionTypeSubOptions = useMemo(() => {
     if (!filters.constructionTypeMain || filters.constructionTypeMain.length === 0) {

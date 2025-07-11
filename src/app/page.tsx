@@ -4,8 +4,8 @@ import { getIncidents } from '@/services/incident.service';
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
-  // We no longer fetch all incidents here to get unique values.
-  // This will be handled on the client side to improve initial load time.
+  // Fetch all incidents on the server to get unique values for filters.
+  // This is a one-time operation to populate the sidebar.
   const allIncidents = await getIncidents();
 
   const uniqueProjectOwners = [...new Set(allIncidents.map((i) => i.projectOwner).filter(Boolean))];
@@ -19,7 +19,7 @@ export default async function DashboardPage() {
 
   return (
     <DashboardClient
-      initialIncidents={[]} // Start with empty incidents, fetch on client
+      allIncidents={allIncidents} 
       uniqueProjectOwners={uniqueProjectOwners}
       uniqueProjectTypes={uniqueProjectTypes}
       uniqueConstructionTypeMains={uniqueConstructionTypeMains}
