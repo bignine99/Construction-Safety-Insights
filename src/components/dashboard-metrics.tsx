@@ -49,8 +49,8 @@ export default function DashboardMetrics({ incidents }: DashboardMetricsProps) {
       />
       <KpiCard
         title="평균 피해 금액"
-        value={`${Math.round(averageCostDamage / 100).toLocaleString()}억원`}
-        description="전체 기간"
+        value={`${Math.round(averageCostDamage * 100).toLocaleString()}만원`}
+        description="총 피해 금액 / 사고건수"
         icon={Banknote}
       />
       <KpiCard
