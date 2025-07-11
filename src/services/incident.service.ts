@@ -1,3 +1,4 @@
+
 import type { Incident } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where, QueryConstraint } from 'firebase/firestore';
@@ -15,7 +16,10 @@ export interface IncidentFilters {
 
 export async function getIncidents(filters: IncidentFilters = {}): Promise<Incident[]> {
   try {
-    const incidentsCollection = collection(db, 'incidents');
+    // 환경 변수에서 컬렉션 이름을 가져옵니다. 기본값은 'incidents' 입니다.
+    const collectionName = process.env.NEXT_PUBLIC_FIRESTORE_COLLECTION || 'incidents';
+    const incidentsCollection = collection(db, collectionName);
+    
     const constraints: QueryConstraint[] = [];
 
     // Firestore 'in' query supports up to 30 items per query.
