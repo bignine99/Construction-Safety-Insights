@@ -22,6 +22,35 @@ interface FilteredIncidentsTableProps {
   incidents: Incident[];
 }
 
+// Helper function to convert Excel serial date to a readable string format
+function formatDateTime(dateTimeValue: string | number): string {
+    let date: Date | null = null;
+    
+    if (typeof dateTimeValue === 'number') {
+        // Excel serial date to JS Date conversion
+        const utc_days = Math.floor(dateTimeValue - 25569);
+        const utc_value = utc_days * 86400;
+        const date_info = new Date(utc_value * 1000);
+        date = new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate());
+    } else if (typeof dateTimeValue === 'string' && dateTimeValue.length > 0) {
+        try {
+            date = new Date(String(dateTimeValue).replace(/\./g, '-').replace(/-$/, ''));
+        } catch (e) {
+            // Invalid date string format, return original string
+            return dateTimeValue;
+        }
+    }
+
+    if (date && !isNaN(date.getTime())) {
+        // Format to YYYY-MM-DD
+        return date.toISOString().split('T')[0];
+    }
+    
+    // Return original value or a placeholder if conversion fails
+    return String(dateTimeValue);
+}
+
+
 export default function FilteredIncidentsTable({ incidents }: FilteredIncidentsTableProps) {
   return (
     <Card>
@@ -53,7 +82,7 @@ export default function FilteredIncidentsTable({ incidents }: FilteredIncidentsT
                   <TableRow key={incident.id}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell className="font-medium truncate max-w-xs">{incident.name}</TableCell>
-                    <TableCell>{incident.dateTime}</TableCell>
+                    <TableCell>{formatDateTime(incident.dateTime)}</TableCell>
                     <TableCell>{incident.objectMain}</TableCell>
                     <TableCell>{incident.causeMain}</TableCell>
                     <TableCell>{incident.resultMain}</TableCell>
