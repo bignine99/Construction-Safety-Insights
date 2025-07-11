@@ -88,13 +88,13 @@ export default function AnalysisPageClient({
         <FilterSidebar
           filters={filters}
           onFilterChange={setFilters}
-          projectOwners={uniqueProjectOwners.filter(o => o !== 'all')}
-          projectTypes={uniqueProjectTypes.filter(o => o !== 'all')}
-          constructionTypeMains={uniqueConstructionTypeMains.filter(o => o !== 'all')}
-          constructionTypeSubs={uniqueConstructionTypeSubs.filter(o => o !== 'all')}
-          objectMains={uniqueObjectMains.filter(o => o !== 'all')}
-          causeMains={uniqueCauseMains.filter(o => o !== 'all')}
-          resultMains={uniqueResultMains.filter(o => o !== 'all')}
+          projectOwners={uniqueProjectOwners}
+          projectTypes={uniqueProjectTypes}
+          constructionTypeMains={uniqueConstructionTypeMains}
+          constructionTypeSubs={uniqueConstructionTypeSubs}
+          objectMains={uniqueObjectMains}
+          causeMains={uniqueCauseMains}
+          resultMains={uniqueResultMains}
           constructionTypeSubOptions={constructionTypeSubOptions}
         />
       </Sidebar>

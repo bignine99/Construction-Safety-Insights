@@ -42,39 +42,45 @@ function ChartsLoadingSkeleton() {
     );
 }
 
-export default function DashboardClient({ allIncidents }: { allIncidents: Incident[] }) {
+interface DashboardClientProps {
+    initialIncidents: Incident[];
+    uniqueProjectOwners: string[];
+    uniqueProjectTypes: string[];
+    uniqueConstructionTypeMains: string[];
+    uniqueConstructionTypeSubs: string[];
+    uniqueObjectMains: string[];
+    uniqueCauseMains: string[];
+    uniqueResultMains: string[];
+}
+
+export default function DashboardClient({
+    initialIncidents,
+    uniqueProjectOwners,
+    uniqueProjectTypes,
+    uniqueConstructionTypeMains,
+    uniqueConstructionTypeSubs,
+    uniqueObjectMains,
+    uniqueCauseMains,
+    uniqueResultMains,
+}: DashboardClientProps) {
   const [filters, setFilters] = useState<IncidentFilters>({
     projectOwner: [], projectType: [], constructionTypeMain: [],
     constructionTypeSub: [], objectMain: [], causeMain: [], resultMain: [],
   });
 
-  const [filteredIncidents, setFilteredIncidents] = useState<Incident[]>(allIncidents);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Unique values for filters should be derived from all incidents, so they don't change.
-  const uniqueProjectOwners = useMemo(() => [...Array.from(new Set(allIncidents.map(i => i.projectOwner).filter(Boolean)))], [allIncidents]);
-  const uniqueProjectTypes = useMemo(() => [...Array.from(new Set(allIncidents.map(i => i.projectType).filter(Boolean)))], [allIncidents]);
-  const uniqueConstructionTypeMains = useMemo(() => [...Array.from(new Set(allIncidents.map(i => i.constructionTypeMain).filter(Boolean)))], [allIncidents]);
-  const uniqueConstructionTypeSubs = useMemo(() => [...Array.from(new Set(allIncidents.map(i => i.constructionTypeSub).filter(Boolean)))], [allIncidents]);
-  const uniqueObjectMains = useMemo(() => [...Array.from(new Set(allIncidents.map(i => i.objectMain).filter(Boolean)))], [allIncidents]);
-  const uniqueCauseMains = useMemo(() => [...Array.from(new Set(allIncidents.map(i => i.causeMain).filter(Boolean)))], [allIncidents]);
-  const uniqueResultMains = useMemo(() => [...Array.from(new Set(allIncidents.map(i => i.resultMain).filter(Boolean)))], [allIncidents]);
+  const [filteredIncidents, setFilteredIncidents] = useState<Incident[]>(initialIncidents);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchFilteredData = async () => {
       setIsLoading(true);
-      const activeFilters = Object.values(filters).some(f => f && f.length > 0);
-      if (activeFilters) {
-        const incidents = await getIncidents(filters);
-        setFilteredIncidents(incidents);
-      } else {
-        setFilteredIncidents(allIncidents);
-      }
+      const incidents = await getIncidents(filters);
+      setFilteredIncidents(incidents);
       setIsLoading(false);
     };
 
     fetchFilteredData();
-  }, [filters, allIncidents]);
+  }, [filters]);
 
   const constructionTypeSubOptions = useMemo(() => {
     if (!filters.constructionTypeMain || filters.constructionTypeMain.length === 0) {
