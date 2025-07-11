@@ -22,6 +22,8 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
+        {/* Suppress favicon and apple-touch-icon requests to avoid 404 errors */}
+        <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
       </head>
       <body className="font-body antialiased">
         <SidebarProvider>
