@@ -32,6 +32,9 @@ export default function PageHeader({
             <p className="mt-1 text-sm text-primary/90 md:text-base">
               {subtitle}
             </p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              본 데이터 분석은 공공데이터 포탈에서 제공하는 국토안전관리원 건설안전사고사례 자료(2019.07 ~ 2024.06)를 활용하였습니다.
+            </p>
           </div>
           <div className="flex flex-1 items-end justify-end">
             <Image
