@@ -23,7 +23,14 @@ const VisualAnalysisInputSchema = z.object({
 export async function performVisualAnalysis(
   input: VisualAnalysisInput
 ): Promise<AsyncGenerator<string>> {
-  return performVisualAnalysisFlow(input);
+  const {stream} = await performVisualAnalysisFlow(input);
+
+  async function* generate() {
+    for await (const chunk of stream) {
+      yield chunk;
+    }
+  }
+  return generate();
 }
 
 const performVisualAnalysisFlow = ai.defineFlow(
@@ -46,7 +53,7 @@ const performVisualAnalysisFlow = ai.defineFlow(
       });
     }
 
-    const { stream } = await ai.generate({
+    const { stream, response } = ai.generate({
       model: 'googleai/gemini-2.0-flash',
       system: systemPrompt,
       prompt: promptParts,
@@ -58,6 +65,7 @@ const performVisualAnalysisFlow = ai.defineFlow(
       fullResponse += chunk.text;
     }
 
+    await response;
     return fullResponse;
   }
 );
