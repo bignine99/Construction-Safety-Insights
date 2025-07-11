@@ -92,7 +92,7 @@ export default function FilteredIncidentsTable({ incidents }: FilteredIncidentsT
                     <TableCell>{incident.objectMain}</TableCell>
                     <TableCell>{incident.causeMain}</TableCell>
                     <TableCell>{incident.resultMain}</TableCell>
-                    <TableCell className="text-right">{incident.riskIndex.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">{(incident.riskIndex * 10).toFixed(1)}</TableCell>
                   </TableRow>
                 ))
               ) : (
