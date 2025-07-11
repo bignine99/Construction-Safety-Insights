@@ -24,32 +24,38 @@ interface FilteredIncidentsTableProps {
 
 // Helper function to convert Excel serial date to a readable string format
 function formatDateTime(dateTimeValue: string | number): string {
-    let date: Date | null = null;
-    
-    if (typeof dateTimeValue === 'number') {
-        // Excel serial date to JS Date conversion
-        const utc_days = Math.floor(dateTimeValue - 25569);
-        const utc_value = utc_days * 86400;
-        const date_info = new Date(utc_value * 1000);
-        date = new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate());
-    } else if (typeof dateTimeValue === 'string' && dateTimeValue.length > 0) {
-        try {
-            date = new Date(String(dateTimeValue).replace(/\./g, '-').replace(/-$/, ''));
-        } catch (e) {
-            // Invalid date string format, return original string
-            return dateTimeValue;
-        }
-    }
+  if (!dateTimeValue) {
+    return '';
+  }
 
-    if (date && !isNaN(date.getTime())) {
-        // Format to YYYY-MM-DD
-        return date.toISOString().split('T')[0];
-    }
-    
-    // Return original value or a placeholder if conversion fails
-    return String(dateTimeValue);
+  let date: Date | null = null;
+  
+  if (typeof dateTimeValue === 'number') {
+      // Excel serial date to JS Date conversion
+      const utc_days = Math.floor(dateTimeValue - 25569);
+      const utc_value = utc_days * 86400;
+      const date_info = new Date(utc_value * 1000);
+      date = new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate());
+  } else if (typeof dateTimeValue === 'string' && dateTimeValue.trim().length > 0) {
+      try {
+          // Handles formats like "2023.12.31."
+          const dateString = String(dateTimeValue).replace(/\./g, '-').replace(/-$/, '');
+          if (dateString) {
+            date = new Date(dateString);
+          }
+      } catch (e) {
+          return dateTimeValue; // Return original string if parsing fails
+      }
+  }
+
+  if (date && !isNaN(date.getTime())) {
+      // Format to YYYY-MM-DD
+      return date.toISOString().split('T')[0];
+  }
+  
+  // Return original value or a placeholder if conversion fails
+  return String(dateTimeValue);
 }
-
 
 export default function FilteredIncidentsTable({ incidents }: FilteredIncidentsTableProps) {
   return (
