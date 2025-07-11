@@ -18,6 +18,9 @@ export default function DashboardMetrics({ incidents }: DashboardMetricsProps) {
   const totalInjuries = incidents.reduce((acc, i) => acc + i.injuries, 0);
   const totalCostDamage = incidents.reduce((acc, i) => acc + i.costDamage, 0);
 
+  const averageCostDamage =
+    totalAccidents > 0 ? totalCostDamage / totalAccidents : 0;
+
   const averageRiskIndex =
     totalAccidents > 0
       ? (incidents.reduce((acc, i) => acc + i.riskIndex, 0) / totalAccidents).toFixed(2)
@@ -45,8 +48,8 @@ export default function DashboardMetrics({ incidents }: DashboardMetricsProps) {
         icon={Users}
       />
       <KpiCard
-        title="총 피해 금액"
-        value={`${Math.round(totalCostDamage / 100).toLocaleString()}억원`}
+        title="평균 피해 금액"
+        value={`${Math.round(averageCostDamage / 100).toLocaleString()}억원`}
         description="전체 기간"
         icon={Banknote}
       />
