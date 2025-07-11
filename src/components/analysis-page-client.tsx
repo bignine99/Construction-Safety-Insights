@@ -145,13 +145,15 @@ export default function AnalysisPageClient({
         />
       </Sidebar>
       <SidebarInset>
-        <div className="w-full max-w-none flex flex-1 flex-col gap-6 p-6">
-          <PageHeader
-            title="AI 기반 안전사고 데이터 분석"
-            subtitle="AI 기반 사건사고 데이터베이스 심층 분석"
-          />
-          <DashboardNav />
-          <div id="page-content" className="flex flex-1 flex-col gap-6">
+        <div className="flex h-full flex-col">
+          <div className="sticky top-0 z-10 flex flex-col gap-6 bg-background p-6">
+            <PageHeader
+              title="AI 기반 안전사고 데이터 분석"
+              subtitle="AI 기반 사건사고 데이터베이스 심층 분석"
+            />
+            <DashboardNav />
+          </div>
+          <div id="page-content" className="flex flex-1 flex-col gap-6 overflow-auto p-6 pt-2">
             <FilteredIncidentsTable incidents={filteredIncidents} />
             <AnalysisClient incidents={filteredIncidents} />
           </div>
