@@ -6,7 +6,7 @@ import type { AiAnalysis, Incident, VisualAnalysisInput } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getAiAnalysis, performVisualAnalysisAction } from '@/app/actions';
-import { Loader2, HelpCircle, Paperclip, Sparkles, Wand2, X, RotateCcw } from 'lucide-react';
+import { Loader2, Paperclip, Sparkles, Wand2, X, RotateCcw } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from './ui/skeleton';
 import { Input } from './ui/input';
@@ -51,6 +51,15 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
     setLoading(true);
     setAnalysisResult(null);
     const descriptions = incidents.map(i => i.name).filter(Boolean);
+    if (descriptions.length === 0) {
+      toast({
+        title: '분석할 데이터 없음',
+        description: 'AI 분석을 실행하려면 먼저 데이터를 필터링해주세요.',
+        variant: 'destructive',
+      })
+      setLoading(false);
+      return;
+    }
     const result = await getAiAnalysis(descriptions);
     setAnalysisResult(result);
     setLoading(false);
@@ -73,9 +82,9 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
   };
 
   const handleAskQuestion = async () => {
-    if (!question.trim()) {
+    if (!question.trim() && !uploadedImage) {
       toast({
-        title: '질문을 입력해주세요.',
+        title: '질문 또는 이미지를 입력해주세요.',
         variant: 'destructive',
       });
       return;
@@ -125,6 +134,8 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
       ))}
     </ul>
   );
+  
+  const isQuestionReady = question.trim().length > 0 || !!uploadedImage;
 
   return (
     <div className="flex flex-col gap-6">
@@ -206,7 +217,7 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
               className="flex-grow"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAskQuestion()}
+              onKeyDown={(e) => e.key === 'Enter' && isQuestionReady && handleAskQuestion()}
               disabled={qaLoading}
             />
             <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={qaLoading}>
@@ -220,7 +231,7 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
               className="hidden"
               accept="image/*"
             />
-            <Button onClick={handleAskQuestion} disabled={qaLoading}>
+            <Button onClick={handleAskQuestion} disabled={qaLoading || !isQuestionReady}>
               {qaLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
               질문하기
             </Button>

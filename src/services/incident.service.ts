@@ -9,7 +9,6 @@ export async function getIncidents(): Promise<Incident[]> {
     const querySnapshot = await getDocs(incidentsCollection);
 
     if (querySnapshot.empty) {
-      console.log('No incidents found in Firestore. Returning empty array.');
       return [];
     }
 
