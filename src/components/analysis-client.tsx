@@ -58,6 +58,14 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      if (file.size > 4 * 1024 * 1024) {
+        toast({
+          title: '파일 크기 초과',
+          description: '4MB 이하의 이미지만 업로드할 수 있습니다.',
+          variant: 'destructive',
+        });
+        return;
+      }
       const dataUri = await fileToDataURI(file);
       setUploadedImage(dataUri);
     }
@@ -82,8 +90,10 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
 
     try {
       const { stream } = await performVisualAnalysisAction(visualInput);
+      let fullResponse = '';
       for await (const chunk of stream) {
-        setAnswer(prev => prev + chunk);
+        fullResponse += chunk;
+        setAnswer(fullResponse);
       }
     } catch (error) {
       console.error('Visual analysis failed:', error);
@@ -111,7 +121,7 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
         <CardHeader>
           <CardTitle className="text-primary">AI 기반 데이터 분석</CardTitle>
           <CardDescription className="text-primary/90">
-            AI를 통해 필터링된 데이터를 분석하여 핵심 테마, 재발방지대책, 작업지시사항을 도출합니다.
+            AI를 통해 필터링된 데이터를 분석하여 데이터 분석 결과, 재발 방지 대책, 안전작업 지시사항을 제공합니다.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -207,7 +217,7 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
           </div>
           {uploadedImage && (
             <div className="relative w-48 h-48 border rounded-md">
-              <Image src={uploadedImage} alt="Uploaded preview" layout="fill" objectFit="cover" className="rounded-md" />
+              <Image src={uploadedImage} alt="Uploaded preview" fill objectFit="cover" className="rounded-md" />
               <Button
                 variant="ghost"
                 size="icon"
