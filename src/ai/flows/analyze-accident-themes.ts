@@ -46,14 +46,14 @@ const analyzeAccidentThemesPrompt = ai.definePrompt({
   name: 'analyzeAccidentThemesPrompt',
   input: {schema: AnalyzeAccidentThemesInputSchema},
   output: {schema: AnalyzeAccidentThemesOutputSchema},
-  prompt: `You are a construction safety expert AI. Based on the provided list of accident cause descriptions, please perform a detailed analysis. Your response must be in Korean.
+  prompt: `You are a construction safety expert AI. Based on the provided list of accident titles, please perform a detailed analysis. Your response must be in clear and concise Korean.
 
-Analyze the following accident descriptions:
+Analyze the following accident titles:
 {{#each accidentDescriptions}}
 - {{{this}}}
 {{/each}}
 
-Based on your analysis, generate the following three sections. Each item should be a concise bullet point.
+Based on your analysis, generate the following three sections. Each item must be a concise, actionable bullet point.
 
 1.  **데이터 분석 결과 (Data Analysis Results)**: Identify the primary causes and recurring patterns from the accident data.
 2.  **재발 방지 대책 (Recurrence Prevention Measures)**: Propose strategic measures to prevent similar accidents in the future.
