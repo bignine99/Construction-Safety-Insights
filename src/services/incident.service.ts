@@ -1,12 +1,51 @@
 import type { Incident } from '@/lib/types';
 import { db } from '@/lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where, QueryConstraint } from 'firebase/firestore';
 
-export async function getIncidents(): Promise<Incident[]> {
+export interface IncidentFilters {
+  projectOwner?: string[];
+  projectType?: string[];
+  constructionTypeMain?: string[];
+  constructionTypeSub?: string[];
+  objectMain?: string[];
+  causeMain?: string[];
+  resultMain?: string[];
+}
+
+
+export async function getIncidents(filters: IncidentFilters = {}): Promise<Incident[]> {
   try {
     const incidentsCollection = collection(db, 'incidents');
-    // For debugging, use a simpler query first, then sort in code.
-    const querySnapshot = await getDocs(incidentsCollection);
+    const constraints: QueryConstraint[] = [];
+
+    // Firestore 'in' query supports up to 30 items per query.
+    // If more are provided, we might need to split into multiple queries or fetch all.
+    // For simplicity, we'll assume filter arrays are within this limit.
+
+    if (filters.projectOwner && filters.projectOwner.length > 0) {
+      constraints.push(where('projectOwner', 'in', filters.projectOwner));
+    }
+    if (filters.projectType && filters.projectType.length > 0) {
+      constraints.push(where('projectType', 'in', filters.projectType));
+    }
+    if (filters.constructionTypeMain && filters.constructionTypeMain.length > 0) {
+      constraints.push(where('constructionTypeMain', 'in', filters.constructionTypeMain));
+    }
+    if (filters.constructionTypeSub && filters.constructionTypeSub.length > 0) {
+      constraints.push(where('constructionTypeSub', 'in', filters.constructionTypeSub));
+    }
+    if (filters.objectMain && filters.objectMain.length > 0) {
+      constraints.push(where('objectMain', 'in', filters.objectMain));
+    }
+    if (filters.causeMain && filters.causeMain.length > 0) {
+      constraints.push(where('causeMain', 'in', filters.causeMain));
+    }
+     if (filters.resultMain && filters.resultMain.length > 0) {
+      constraints.push(where('resultMain', 'in', filters.resultMain));
+    }
+
+    const q = query(incidentsCollection, ...constraints);
+    const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
       return [];
@@ -39,10 +78,13 @@ export async function getIncidents(): Promise<Incident[]> {
       } as Incident;
     });
     
-    // Sort incidents by date descending in the code
+    // Sort incidents by date descending in the code as Firestore requires a composite index for this
     incidents.sort((a, b) => {
       try {
-        return new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime();
+        // Handle different date formats (serial vs string)
+        const dateA = typeof a.dateTime === 'number' ? a.dateTime : new Date(a.dateTime).getTime();
+        const dateB = typeof b.dateTime === 'number' ? b.dateTime : new Date(b.dateTime).getTime();
+        return dateB - dateA;
       } catch (e) {
         return 0;
       }
@@ -51,6 +93,7 @@ export async function getIncidents(): Promise<Incident[]> {
     return incidents;
   } catch (error) {
     console.error('Error getting incidents from Firestore:', error);
+    // Return empty array on error to prevent app crash
     return [];
   }
 }

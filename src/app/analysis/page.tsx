@@ -4,6 +4,7 @@ import { getIncidents } from '@/services/incident.service';
 export const dynamic = 'force-dynamic';
 
 export default async function AnalysisPage() {
+  // Load all incidents to populate filter options initially
   const incidents = await getIncidents();
 
   const uniqueProjectOwners = [
@@ -30,7 +31,8 @@ export default async function AnalysisPage() {
 
   return (
     <AnalysisPageClient
-      incidents={incidents}
+      // Start with an empty array for filtered incidents, they will be fetched on client
+      initialIncidents={[]}
       uniqueProjectOwners={uniqueProjectOwners}
       uniqueProjectTypes={uniqueProjectTypes}
       uniqueConstructionTypeMains={uniqueConstructionTypeMains}

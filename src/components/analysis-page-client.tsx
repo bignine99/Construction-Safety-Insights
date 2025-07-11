@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import type { Incident } from '@/lib/types';
+import { getIncidents, type IncidentFilters } from '@/services/incident.service';
 import AnalysisClient from '@/components/analysis-client';
 import { DashboardNav } from '@/components/dashboard-nav';
 import FilterSidebar from '@/components/filter-sidebar';
@@ -12,9 +13,10 @@ import {
   SidebarProvider,
 } from '@/components/ui/sidebar';
 import FilteredIncidentsTable from './filtered-incidents-table';
+import { Skeleton } from './ui/skeleton';
 
 interface AnalysisPageClientProps {
-  incidents: Incident[];
+  initialIncidents: Incident[];
   uniqueProjectOwners: string[];
   uniqueProjectTypes: string[];
   uniqueConstructionTypeMains: string[];
@@ -26,28 +28,12 @@ interface AnalysisPageClientProps {
 
 const constructionTypeMap: Record<string, string[]> = {
   건축: [
-    '해체및철거공사',
-    '금속공사',
-    '목공사',
-    '수장공사',
-    '도장공사',
-    '지붕및홈통공사',
-    '가설공사',
-    '철근콘크리트공사',
-    '철골공사',
-    '조적공사',
-    '미장공사',
-    '방수공사',
-    '타일및석공사',
-    '창호및유리공사',
+    '해체및철거공사', '금속공사', '목공사', '수장공사', '도장공사',
+    '지붕및홈통공사', '가설공사', '철근콘크리트공사', '철골공사', '조적공사',
+    '미장공사', '방수공사', '타일및석공사', '창호및유리공사',
   ],
   토목: [
-    '토공사',
-    '지정공사',
-    '관공사',
-    '부대공사',
-    '조경공사',
-    '도로및포장공사',
+    '토공사', '지정공사', '관공사', '부대공사', '조경공사', '도로및포장공사',
   ],
   설비: ['기계설비공사', '전기설비공사', '통신설비공사'],
   기타: ['기타'],
@@ -55,7 +41,7 @@ const constructionTypeMap: Record<string, string[]> = {
 
 
 export default function AnalysisPageClient({
-  incidents,
+  initialIncidents,
   uniqueProjectOwners,
   uniqueProjectTypes,
   uniqueConstructionTypeMains,
@@ -64,18 +50,27 @@ export default function AnalysisPageClient({
   uniqueCauseMains,
   uniqueResultMains,
 }: AnalysisPageClientProps) {
-  const [filters, setFilters] = useState({
-    projectOwner: [] as string[],
-    projectType: [] as string[],
-    constructionTypeMain: [] as string[],
-    constructionTypeSub: [] as string[],
-    objectMain: [] as string[],
-    causeMain: [] as string[],
-    resultMain: [] as string[],
+  const [filters, setFilters] = useState<IncidentFilters>({
+    projectOwner: [], projectType: [], constructionTypeMain: [],
+    constructionTypeSub: [], objectMain: [], causeMain: [], resultMain: [],
   });
 
+  const [filteredIncidents, setFilteredIncidents] = useState<Incident[]>(initialIncidents);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFilteredData = async () => {
+      setIsLoading(true);
+      const incidents = await getIncidents(filters);
+      setFilteredIncidents(incidents);
+      setIsLoading(false);
+    };
+
+    fetchFilteredData();
+  }, [filters]);
+
   const constructionTypeSubOptions = useMemo(() => {
-    if (filters.constructionTypeMain.length === 0) {
+    if (!filters.constructionTypeMain || filters.constructionTypeMain.length === 0) {
       return uniqueConstructionTypeSubs;
     }
     const options = new Set<string>();
@@ -86,47 +81,6 @@ export default function AnalysisPageClient({
     return Array.from(options);
   }, [filters.constructionTypeMain, uniqueConstructionTypeSubs]);
 
-
-  const filteredIncidents = useMemo(() => {
-    return incidents.filter(incident => {
-      const {
-        projectOwner,
-        projectType,
-        constructionTypeMain,
-        constructionTypeSub,
-        objectMain,
-        causeMain,
-        resultMain,
-      } = filters;
-      
-      const projectOwnerMatch =
-        projectOwner.length === 0 || projectOwner.includes(incident.projectOwner);
-      const projectTypeMatch =
-        projectType.length === 0 || projectType.includes(incident.projectType);
-      const constructionTypeMainMatch =
-        constructionTypeMain.length === 0 ||
-        constructionTypeMain.includes(incident.constructionTypeMain);
-      const constructionTypeSubMatch =
-        constructionTypeSub.length === 0 ||
-        constructionTypeSub.includes(incident.constructionTypeSub);
-      const objectMainMatch =
-        objectMain.length === 0 || objectMain.includes(incident.objectMain);
-      const causeMainMatch =
-        causeMain.length === 0 || causeMain.includes(incident.causeMain);
-      const resultMainMatch =
-        resultMain.length === 0 || resultMain.includes(incident.resultMain);
-
-      return (
-        projectOwnerMatch &&
-        projectTypeMatch &&
-        constructionTypeMainMatch &&
-        constructionTypeSubMatch &&
-        objectMainMatch &&
-        causeMainMatch &&
-        resultMainMatch
-      );
-    });
-  }, [filters, incidents]);
 
   return (
     <SidebarProvider>
@@ -154,7 +108,11 @@ export default function AnalysisPageClient({
             <DashboardNav />
           </div>
           <div id="page-content" className="flex flex-1 flex-col gap-6 overflow-auto p-6 pt-2">
-            <FilteredIncidentsTable incidents={filteredIncidents} />
+            {isLoading ? (
+                <Skeleton className="h-96 w-full rounded-lg" />
+            ) : (
+                <FilteredIncidentsTable incidents={filteredIncidents} />
+            )}
             <AnalysisClient incidents={filteredIncidents} />
           </div>
         </div>
