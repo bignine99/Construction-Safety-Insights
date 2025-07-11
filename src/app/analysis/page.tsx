@@ -4,34 +4,20 @@ import { getIncidents } from '@/services/incident.service';
 export const dynamic = 'force-dynamic';
 
 export default async function AnalysisPage() {
-  // Load all incidents to populate filter options initially
-  const incidents = await getIncidents();
+  // We no longer fetch all incidents here to get unique values.
+  // This will be handled on the client side to improve initial load time.
+  const allIncidents = await getIncidents();
 
-  const uniqueProjectOwners = [
-    ...Array.from(new Set(incidents.map((i) => i.projectOwner).filter(Boolean))),
-  ];
-  const uniqueProjectTypes = [
-    ...Array.from(new Set(incidents.map((i) => i.projectType).filter(Boolean))),
-  ];
-  const uniqueConstructionTypeMains = [
-    ...Array.from(new Set(incidents.map((i) => i.constructionTypeMain).filter(Boolean))),
-  ];
-  const uniqueConstructionTypeSubs = [
-    ...Array.from(new Set(incidents.map((i) => i.constructionTypeSub).filter(Boolean))),
-  ];
-  const uniqueObjectMains = [
-    ...Array.from(new Set(incidents.map((i) => i.objectMain).filter(Boolean))),
-  ];
-  const uniqueCauseMains = [
-    ...Array.from(new Set(incidents.map((i) => i.causeMain).filter(Boolean))),
-  ];
-  const uniqueResultMains = [
-    ...Array.from(new Set(incidents.map((i) => i.resultMain).filter(Boolean))),
-  ];
+  const uniqueProjectOwners = [...new Set(allIncidents.map(i => i.projectOwner).filter(Boolean))];
+  const uniqueProjectTypes = [...new Set(allIncidents.map(i => i.projectType).filter(Boolean))];
+  const uniqueConstructionTypeMains = [...new Set(allIncidents.map(i => i.constructionTypeMain).filter(Boolean))];
+  const uniqueConstructionTypeSubs = [...new Set(allIncidents.map(i => i.constructionTypeSub).filter(Boolean))];
+  const uniqueObjectMains = [...new Set(allIncidents.map(i => i.objectMain).filter(Boolean))];
+  const uniqueCauseMains = [...new Set(allIncidents.map(i => i.causeMain).filter(Boolean))];
+  const uniqueResultMains = [...new Set(allIncidents.map(i => i.resultMain).filter(Boolean))];
 
   return (
     <AnalysisPageClient
-      // Start with an empty array for filtered incidents, they will be fetched on client
       initialIncidents={[]}
       uniqueProjectOwners={uniqueProjectOwners}
       uniqueProjectTypes={uniqueProjectTypes}
