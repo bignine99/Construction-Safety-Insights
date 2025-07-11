@@ -23,7 +23,7 @@ export default function DashboardMetrics({ incidents }: DashboardMetricsProps) {
 
   const averageRiskIndex =
     totalAccidents > 0
-      ? (incidents.reduce((acc, i) => acc + i.riskIndex, 0) / totalAccidents).toFixed(2)
+      ? ((incidents.reduce((acc, i) => acc + i.riskIndex, 0) / totalAccidents) * 10).toFixed(1)
       : 'N/A';
 
   return (
