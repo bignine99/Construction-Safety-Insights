@@ -183,10 +183,10 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-primary">
             <HelpCircle className="h-6 w-6" />
-            AI 질문 및 분석 창
+            AI에게 물어 보세요
           </CardTitle>
           <CardDescription className="text-primary/90">
-            건설 안전에 대한 질문을 하거나, 현장 사진 또는 작업일보를 업로드하여 분석을 요청하세요.
+            현장사진, 안전 체크리스트, 금일 작업일보 등을 첨부하여 AI에게 질문하실 수 있습니다. 안전과 관련된 어떠한 질문도 친절하게 답변해 드립니다.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -217,7 +217,7 @@ export default function AnalysisClient({ incidents }: { incidents: Incident[] })
           </div>
           {uploadedImage && (
             <div className="relative w-48 h-48 border rounded-md">
-              <Image src={uploadedImage} alt="Uploaded preview" fill objectFit="cover" className="rounded-md" />
+              <Image src={uploadedImage} alt="Uploaded preview" fill style={{objectFit:"cover"}} className="rounded-md" />
               <Button
                 variant="ghost"
                 size="icon"
