@@ -20,7 +20,7 @@ export default function KpiCard({ title, value, description, icon: Icon, iconCla
       </CardHeader>
       <CardContent className="p-4 pt-0">
         <div className="text-xl font-bold">{value}</div>
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <p className="text-xs text-muted-foreground pt-1">{description}</p>
       </CardContent>
     </Card>
   );

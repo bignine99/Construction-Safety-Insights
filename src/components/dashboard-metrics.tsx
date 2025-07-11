@@ -31,7 +31,7 @@ export default function DashboardMetrics({ incidents }: DashboardMetricsProps) {
       <KpiCard
         title="총 사고 건수"
         value={totalAccidents.toLocaleString()}
-        description={`${incidents.length > 0 ? new Date(incidents[0].dateTime).getFullYear() : ''}년~현재`}
+        description="2019년 7월 ~ 2024년 6월"
         icon={AlertTriangle}
       />
       <KpiCard
