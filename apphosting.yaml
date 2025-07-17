@@ -5,3 +5,15 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+  # Add environment variables
+  env:
+    - variable: NEXT_PUBLIC_APP_TITLE
+      value: "Construction Safety Insights"
+    - variable: NEXT_PUBLIC_APP_SUBTITLE
+      value: "건설산업 안전사고 분석 대시보드"
+    - variable: NEXT_PUBLIC_FIRESTORE_COLLECTION
+      value: "incidents"
+    - variable: NEXT_PUBLIC_CNU_LOGO_URL
+      value: "https://cnu.nhi.go.kr/upload/bureau/logo/20240306/F20240306164930230.png"
+    - variable: NEXT_PUBLIC_NINETYNINE_LOGO_URL
+      value: "https://i.postimg.cc/x80mN6S0/NN01.png"
