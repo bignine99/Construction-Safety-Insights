@@ -24,6 +24,7 @@ export async function getIncidents(): Promise<Incident[]> {
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
+      console.warn(`Warning: No documents found in collection '${collectionName}'.`);
       return [];
     }
 
