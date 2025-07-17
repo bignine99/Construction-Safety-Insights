@@ -3,9 +3,13 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { SidebarProvider } from '@/components/ui/sidebar';
 
+// 환경 변수에서 메타데이터 값을 읽어옵니다.
+const appTitle = process.env.NEXT_PUBLIC_APP_TITLE || 'Construction Safety Insights';
+const appDescription = process.env.NEXT_PUBLIC_APP_SUBTITLE || '건설산업 안전사고 분석 대시보드';
+
 export const metadata: Metadata = {
-  title: 'Construction Safety Insights',
-  description: '건설산업 안전사고 분석 대시보드',
+  title: appTitle,
+  description: appDescription,
 };
 
 export default function RootLayout({

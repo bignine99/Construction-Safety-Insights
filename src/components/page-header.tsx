@@ -5,12 +5,18 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Card } from '@/components/ui/card';
 
 export default function PageHeader({
-  title,
-  subtitle,
+  title: defaultTitle,
+  subtitle: defaultSubtitle,
 }: {
   title: string;
   subtitle: string;
 }) {
+  // 환경 변수에서 값을 읽어오고, 없으면 props의 기본값을 사용합니다.
+  const title = process.env.NEXT_PUBLIC_APP_TITLE || defaultTitle;
+  const subtitle = process.env.NEXT_PUBLIC_APP_SUBTITLE || defaultSubtitle;
+  const cnuLogoUrl = process.env.NEXT_PUBLIC_CNU_LOGO_URL || "https://cnu.nhi.go.kr/upload/bureau/logo/20240306/F20240306164930230.png";
+  const ninetynineLogoUrl = process.env.NEXT_PUBLIC_NINETYNINE_LOGO_URL || "https://i.postimg.cc/x80mN6S0/NN01.png";
+
   return (
     <div className="flex w-full items-start gap-4">
       <SidebarTrigger className="md:hidden" />
@@ -18,7 +24,7 @@ export default function PageHeader({
         <div className="flex items-end justify-between p-4">
           <div className="flex flex-1 items-end justify-start">
             <Image
-              src="https://cnu.nhi.go.kr/upload/bureau/logo/20240306/F20240306164930230.png"
+              src={cnuLogoUrl}
               alt="Chungnam National University Logo"
               width={270}
               height={68}
@@ -38,7 +44,7 @@ export default function PageHeader({
           </div>
           <div className="flex flex-1 items-end justify-end">
             <Image
-              src="https://i.postimg.cc/x80mN6S0/NN01.png"
+              src={ninetynineLogoUrl}
               alt="Ninetynine Logo"
               width={225}
               height={75}
