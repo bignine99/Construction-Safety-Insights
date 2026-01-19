@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import type { Incident } from '@/lib/types';
+import type { DashboardStats } from '@/lib/types';
 import {
   Card,
   CardContent,
@@ -16,13 +16,12 @@ import {
   YAxis,
   Tooltip,
   Scatter,
-  Cell,
   ZAxis,
 } from 'recharts';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
 interface CauseResultMatrixProps {
-  incidents: Incident[];
+  stats: DashboardStats | null;
 }
 
 const CAUSE_ORDER: string[] = ['시공오류', '기타', '설계오류'];
@@ -36,35 +35,35 @@ const RESULT_ORDER: { key: string; label: string }[] = [
   { key: '기타', label: '기타' },
 ];
 
-export default function CauseResultMatrix({ incidents }: CauseResultMatrixProps) {
+export default function CauseResultMatrix({ stats }: CauseResultMatrixProps) {
   const { chartData, maxCount } = useMemo(() => {
+    if (!stats) return { chartData: [], maxCount: 0 };
+
     const matrix: { cause: string; result: string; count: number }[] = [];
     const causeIndexMap = new Map(CAUSE_ORDER.map((c, i) => [c, i]));
     const resultIndexMap = new Map(RESULT_ORDER.map((r, i) => [r.key, i]));
     const resultLabelMap = new Map(RESULT_ORDER.map(r => [r.key, r.label]));
     let maxCount = 0;
 
-    for (const incident of incidents) {
-      const cause = CAUSE_ORDER.includes(incident.causeMain)
-        ? incident.causeMain
-        : '기타';
-      const resultKey = RESULT_ORDER.find(r => r.key === incident.resultMain)?.key;
+    stats.causeResultMatrix.forEach(item => {
+      const cause = CAUSE_ORDER.includes(item.cause) ? item.cause : '기타';
+      const resultKey = RESULT_ORDER.find(r => r.key === item.result)?.key;
 
       if (resultKey) {
         let existingEntry = matrix.find(
           (d) => d.cause === cause && d.result === resultKey
         );
         if (existingEntry) {
-          existingEntry.count++;
+          existingEntry.count += item.count;
         } else {
-          existingEntry = { cause, result: resultKey, count: 1 };
+          existingEntry = { cause, result: resultKey, count: item.count };
           matrix.push(existingEntry);
         }
         if (existingEntry.count > maxCount) {
           maxCount = existingEntry.count;
         }
       }
-    }
+    });
 
     const data = matrix.map(item => ({
       ...item,
@@ -75,7 +74,9 @@ export default function CauseResultMatrix({ incidents }: CauseResultMatrixProps)
     }));
     
     return { chartData: data, maxCount };
-  }, [incidents]);
+  }, [stats]);
+
+  if (!stats) return null;
 
   return (
     <Card className="flex flex-col">

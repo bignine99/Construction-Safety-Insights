@@ -2,27 +2,24 @@
 
 import { useMemo } from 'react';
 import { Bar, BarChart as RechartsBarChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import type { Incident } from '@/lib/types';
+import type { DashboardStats } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
 interface CauseSubtypeBarChartProps {
-  incidents: Incident[];
+  stats: DashboardStats | null;
 }
 
-export default function CauseSubtypeBarChart({ incidents }: CauseSubtypeBarChartProps) {
+export default function CauseSubtypeBarChart({ stats }: CauseSubtypeBarChartProps) {
   const chartData = useMemo(() => {
-    const data = incidents.reduce((acc, incident) => {
-      const subType = incident.causeMiddle || '기타';
-      acc[subType] = (acc[subType] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    if (!stats) return [];
+    return stats.causeSubtypeData.map(item => ({
+      name: item.name || '기타',
+      '사고 건수': item.count
+    }));
+  }, [stats]);
 
-    return Object.entries(data)
-      .map(([name, value]) => ({ name, '사고 건수': value }))
-      .sort((a, b) => b['사고 건수'] - a['사고 건수'])
-      .slice(0, 9);
-  }, [incidents]);
+  if (!stats) return null;
 
   return (
     <Card className="flex flex-col">

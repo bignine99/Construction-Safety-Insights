@@ -1,10 +1,9 @@
-// src/components/analysis-page-client.tsx
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
 import type { Incident } from '@/lib/types';
 import type { IncidentFilters } from '@/services/incident.service';
-import { getIncidents } from '@/app/actions'; // Import from actions
+import { getPaginatedIncidentsAction, getFilterOptions } from '@/app/actions';
 import AnalysisClient from '@/components/analysis-client';
 import { DashboardNav } from '@/components/dashboard-nav';
 import FilterSidebar from '@/components/filter-sidebar';
@@ -16,6 +15,8 @@ import {
 } from '@/components/ui/sidebar';
 import FilteredIncidentsTable from './filtered-incidents-table';
 import { Skeleton } from './ui/skeleton';
+import { Card } from './ui/card';
+import { LayoutDashboard, FileSearch, ShieldCheck } from 'lucide-react';
 
 const constructionTypeMap: Record<string, string[]> = {
   건축: [
@@ -30,68 +31,77 @@ const constructionTypeMap: Record<string, string[]> = {
   기타: ['기타'],
 };
 
-function FullPageLoadingSkeleton() {
+function ProSkeleton() {
   return (
-    <div className="flex flex-1 flex-col gap-6 overflow-auto p-6 pt-2">
-      <Skeleton className="h-96 w-full rounded-lg" />
-      <Skeleton className="h-96 w-full rounded-lg" />
+    <div className="space-y-6">
+      <Skeleton className="h-[400px] w-full rounded-2xl" />
+      <Skeleton className="h-[300px] w-full rounded-2xl" />
     </div>
   );
 }
 
 export default function AnalysisPageClient() {
-  const [allIncidents, setAllIncidents] = useState<Incident[]>([]);
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [filterOptions, setFilterOptions] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDataLoading, setIsDataLoading] = useState(true);
+  
+  const [page, setPage] = useState(1);
+  const pageSize = 50;
+
   const [filters, setFilters] = useState<IncidentFilters>({
     projectOwner: [], projectType: [], constructionTypeMain: [],
     constructionTypeSub: [], objectMain: [], causeMain: [], resultMain: [],
   });
 
   useEffect(() => {
-    async function loadData() {
+    async function loadInitialData() {
       setIsLoading(true);
-      const incidents = await getIncidents();
-      setAllIncidents(incidents);
-      setIsLoading(false);
+      setIsDataLoading(true);
+      try {
+        const [options, result] = await Promise.all([
+          getFilterOptions(),
+          getPaginatedIncidentsAction(filters, page, pageSize)
+        ]);
+        setFilterOptions(options);
+        setIncidents(result.incidents);
+        setTotalCount(result.totalCount);
+      } catch (error) {
+        console.error('Failed to load initial analysis data:', error);
+      } finally {
+        setIsLoading(false);
+        setIsDataLoading(false);
+      }
     }
-    loadData();
+    loadInitialData();
   }, []);
 
-  const uniqueValues = useMemo(() => {
-    if (isLoading) {
-      return {
-        uniqueProjectOwners: [], uniqueProjectTypes: [], uniqueConstructionTypeMains: [],
-        uniqueConstructionTypeSubs: [], uniqueObjectMains: [], uniqueCauseMains: [], uniqueResultMains: []
-      };
+  useEffect(() => {
+    if (isLoading) return;
+    async function loadData() {
+      setIsDataLoading(true);
+      try {
+        const result = await getPaginatedIncidentsAction(filters, page, pageSize);
+        setIncidents(result.incidents);
+        setTotalCount(result.totalCount);
+      } catch (error) {
+        console.error('Failed to load incidents:', error);
+      } finally {
+        setIsDataLoading(false);
+      }
     }
-    return {
-      uniqueProjectOwners: [...new Set(allIncidents.map((i) => i.projectOwner).filter(Boolean))],
-      uniqueProjectTypes: [...new Set(allIncidents.map((i) => i.projectType).filter(Boolean))],
-      uniqueConstructionTypeMains: [...new Set(allIncidents.map((i) => i.constructionTypeMain).filter(Boolean))],
-      uniqueConstructionTypeSubs: [...new Set(allIncidents.map((i) => i.constructionTypeSub).filter(Boolean))],
-      uniqueObjectMains: [...new Set(allIncidents.map((i) => i.objectMain).filter(Boolean))],
-      uniqueCauseMains: [...new Set(allIncidents.map((i) => i.causeMain).filter(Boolean))],
-      uniqueResultMains: [...new Set(allIncidents.map((i) => i.resultMain).filter(Boolean))],
-    };
-  }, [isLoading, allIncidents]);
-  
-  const filteredIncidents = useMemo(() => {
-    return allIncidents.filter(incident => {
-      if (filters.projectOwner?.length && !filters.projectOwner.includes(incident.projectOwner)) return false;
-      if (filters.projectType?.length && !filters.projectType.includes(incident.projectType)) return false;
-      if (filters.constructionTypeMain?.length && !filters.constructionTypeMain.includes(incident.constructionTypeMain)) return false;
-      if (filters.constructionTypeSub?.length && !filters.constructionTypeSub.includes(incident.constructionTypeSub)) return false;
-      if (filters.objectMain?.length && !filters.objectMain.includes(incident.objectMain)) return false;
-      if (filters.causeMain?.length && !filters.causeMain.includes(incident.causeMain)) return false;
-      if (filters.resultMain?.length && !filters.resultMain.includes(incident.resultMain)) return false;
-      return true;
-    });
-  }, [filters, allIncidents]);
+    loadData();
+  }, [filters, page]);
 
+  const handleFilterChange = (newFilters: IncidentFilters) => {
+    setFilters(newFilters);
+    setPage(1);
+  };
 
   const constructionTypeSubOptions = useMemo(() => {
     if (!filters.constructionTypeMain || filters.constructionTypeMain.length === 0) {
-      return uniqueValues.uniqueConstructionTypeSubs;
+      return filterOptions?.constructionTypeSubs || [];
     }
     const options = new Set<string>();
     filters.constructionTypeMain.forEach(mainType => {
@@ -99,43 +109,102 @@ export default function AnalysisPageClient() {
       subs.forEach(sub => options.add(sub));
     });
     return Array.from(options);
-  }, [filters.constructionTypeMain, uniqueValues.uniqueConstructionTypeSubs]);
+  }, [filters.constructionTypeMain, filterOptions]);
 
+  if (isLoading) {
+    return (
+      <div className="p-8 bg-slate-50 min-h-screen">
+        <ProSkeleton />
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar className="border-r border-slate-200 shadow-xl">
         <FilterSidebar
           filters={filters}
-          onFilterChange={setFilters}
-          projectOwners={uniqueValues.uniqueProjectOwners}
-          projectTypes={uniqueValues.uniqueProjectTypes}
-          constructionTypeMains={uniqueValues.uniqueConstructionTypeMains}
-          constructionTypeSubs={uniqueValues.uniqueConstructionTypeSubs}
-          objectMains={uniqueValues.uniqueObjectMains}
-          causeMains={uniqueValues.uniqueCauseMains}
-          resultMains={uniqueValues.uniqueResultMains}
+          onFilterChange={handleFilterChange}
+          projectOwners={filterOptions?.projectOwners || []}
+          projectTypes={filterOptions?.projectTypes || []}
+          constructionTypeMains={filterOptions?.constructionTypeMains || []}
+          constructionTypeSubs={filterOptions?.constructionTypeSubs || []}
+          objectMains={filterOptions?.objectMains || []}
+          causeMains={filterOptions?.causeMains || []}
+          resultMains={filterOptions?.resultMains || []}
           constructionTypeSubOptions={constructionTypeSubOptions}
-          disabled={isLoading}
+          disabled={isDataLoading}
         />
       </Sidebar>
-      <SidebarInset>
+      
+      <SidebarInset className="bg-transparent mesh-bg">
         <div className="flex h-full flex-col">
-          <div className="sticky top-0 z-10 flex flex-col gap-6 bg-background p-6">
-            <PageHeader
-              title="AI 기반 안전사고 데이터 분석"
-              subtitle="AI 기반 사건사고 데이터베이스 심층 분석"
-            />
-            <DashboardNav />
-          </div>
-          <div id="page-content" className="flex flex-1 flex-col gap-6 overflow-auto p-6 pt-2">
-            {isLoading ? <FullPageLoadingSkeleton /> : (
-              <>
-                <FilteredIncidentsTable incidents={filteredIncidents} />
-                <AnalysisClient incidents={filteredIncidents} />
-              </>
-            )}
-          </div>
+          {/* 상단 럭셔리 헤더 섹션 */}
+          <header className="sticky top-0 z-30 glass-header px-8 py-4 shadow-sm">
+            <div className="max-w-7xl mx-auto flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <PageHeader
+                  title="지능형 안전사고 데이터 분석"
+                  subtitle="WBS-RBS 기반의 정밀 안전 진단 및 AI 리포트"
+                />
+                <div className="hidden md:flex items-center gap-3 text-xs font-semibold text-slate-500 bg-white/50 px-4 py-2 rounded-full border border-slate-200/60 backdrop-blur-sm">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  지능형 RAG 분석 엔진 가동 중
+                </div>
+              </div>
+              <DashboardNav />
+            </div>
+          </header>
+          
+          <main id="page-content" className="flex-1 p-8 pt-6 overflow-auto max-w-7xl mx-auto w-full space-y-8">
+            {/* 데이터 요약 카드 (통계적 가치 강조) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="p-6 pro-card-indigo shimmer-effect">
+                <p className="text-indigo-100 text-sm font-medium">분석 대상 데이터</p>
+                <h3 className="text-3xl font-bold mt-1 text-white">{totalCount.toLocaleString()}<span className="text-lg font-normal ml-1 text-indigo-200">건</span></h3>
+                <div className="mt-4 flex items-center gap-2 text-xs text-indigo-200">
+                  <FileSearch className="w-4 h-4" />
+                  실시간 필터링 적용 중
+                </div>
+              </Card>
+              <Card className="p-6 pro-card shadow-sm">
+                <p className="text-slate-500 text-sm font-medium">현재 페이지</p>
+                <h3 className="text-3xl font-bold mt-1 text-slate-900">{page}<span className="text-lg font-normal ml-1 text-slate-400">/ {Math.ceil(totalCount / pageSize)}</span></h3>
+                <p className="mt-4 text-xs text-slate-400">데이터 테이블 기반 상세 분석</p>
+              </Card>
+              <Card className="p-6 pro-card shadow-sm">
+                <p className="text-slate-500 text-sm font-medium">AI 분석 모델</p>
+                <h3 className="text-3xl font-bold mt-1 text-slate-900">Gemini <span className="text-indigo-600">2.0 Flash</span></h3>
+                <p className="mt-4 text-xs text-slate-400">전문가용 심층 분석 알고리즘 가동 중</p>
+              </Card>
+            </div>
+
+            {/* 메인 콘텐츠 영역 */}
+            <div className="grid grid-cols-1 gap-8 animate-fade-in">
+              <section className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-6 bg-indigo-600 rounded-full" />
+                  <h2 className="text-xl font-bold text-slate-800 tracking-tight">사고 데이터 상세 명세</h2>
+                </div>
+                <FilteredIncidentsTable 
+                  incidents={incidents} 
+                  totalCount={totalCount}
+                  page={page}
+                  pageSize={pageSize}
+                  onPageChange={setPage}
+                  isLoading={isDataLoading}
+                />
+              </section>
+
+              <section className="space-y-4 pb-12">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-6 bg-indigo-600 rounded-full" />
+                  <h2 className="text-xl font-bold text-slate-800 tracking-tight">AI 디지털 안전 진단</h2>
+                </div>
+                <AnalysisClient incidents={incidents} />
+              </section>
+            </div>
+          </main>
         </div>
       </SidebarInset>
     </SidebarProvider>

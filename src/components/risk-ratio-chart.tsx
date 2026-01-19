@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo } from 'react';
@@ -13,7 +12,7 @@ import {
   Cell,
   Label,
 } from 'recharts';
-import type { Incident } from '@/lib/types';
+import type { DashboardStats } from '@/lib/types';
 import {
   Card,
   CardContent,
@@ -24,7 +23,7 @@ import {
 import { ChartContainer } from './ui/chart';
 
 interface RiskRatioChartProps {
-  incidents: Incident[];
+  stats: DashboardStats | null;
   constructionTypeMap: Record<string, string[]>;
   activeFilters: string[];
 }
@@ -75,19 +74,14 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 export default function RiskRatioChart({
-  incidents,
+  stats,
   constructionTypeMap,
   activeFilters,
 }: RiskRatioChartProps) {
   const { bubbleData, maxCount } = useMemo(() => {
-    const subTypeCounts = incidents.reduce((acc, incident) => {
-      const subType = incident.constructionTypeSub;
-      if (subType) {
-        acc[subType] = (acc[subType] || 0) + 1;
-      }
-      return acc;
-    }, {} as Record<string, number>);
+    if (!stats) return { bubbleData: [], maxCount: 0 };
 
+    const subTypeCounts = stats.constructionSubtypeCount;
     let data: BubbleData[] = [];
     const currentMaxCount = Math.max(...Object.values(subTypeCounts), 0);
 
@@ -118,7 +112,9 @@ export default function RiskRatioChart({
     });
 
     return { bubbleData: data, maxCount: currentMaxCount };
-  }, [incidents, constructionTypeMap, activeFilters]);
+  }, [stats, constructionTypeMap, activeFilters]);
+
+  if (!stats) return null;
 
   return (
     <Card className="flex flex-col">

@@ -2,26 +2,24 @@
 
 import { useMemo } from 'react';
 import { Bar, BarChart as RechartsBarChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import type { Incident } from '@/lib/types';
+import type { DashboardStats } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
 interface ObjectSubtypeBarChartProps {
-  incidents: Incident[];
+  stats: DashboardStats | null;
 }
 
-export default function ObjectSubtypeBarChart({ incidents }: ObjectSubtypeBarChartProps) {
+export default function ObjectSubtypeBarChart({ stats }: ObjectSubtypeBarChartProps) {
   const chartData = useMemo(() => {
-    const dataByWorkType = incidents.reduce((acc, incident) => {
-      const workType = incident.workType || '기타';
-      acc[workType] = (acc[workType] || 0) + incident.riskIndex;
-      return acc;
-    }, {} as Record<string, number>);
+    if (!stats) return [];
+    return stats.workTypeRiskData.map(item => ({
+      name: item.name || '기타',
+      '사고위험지수': parseFloat(item.riskIndex.toFixed(1))
+    }));
+  }, [stats]);
 
-    return Object.entries(dataByWorkType)
-      .map(([name, value]) => ({ name, '사고위험지수': parseFloat(value.toFixed(1)) }))
-      .sort((a, b) => b['사고위험지수'] - a['사고위험지수']);
-  }, [incidents]);
+  if (!stats) return null;
 
   return (
     <Card className="flex flex-col">

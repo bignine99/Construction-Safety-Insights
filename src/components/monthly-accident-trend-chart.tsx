@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   ComposedChart,
 } from 'recharts';
-import type { Incident } from '@/lib/types';
+import type { DashboardStats } from '@/lib/types';
 import {
   Card,
   CardContent,
@@ -24,91 +24,32 @@ import {
 import { Button } from '@/components/ui/button';
 
 interface MonthlyAccidentTrendChartProps {
-  incidents: Incident[];
-}
-
-function excelSerialDateToJSDate(serial: number): Date | null {
-  if (typeof serial !== 'number' || isNaN(serial)) {
-    return null;
-  }
-  const utc_days = Math.floor(serial - 25569);
-  const utc_value = utc_days * 86400;
-  const date_info = new Date(utc_value * 1000);
-
-  const fractional_day = serial - Math.floor(serial) + 0.0000001;
-
-  let total_seconds = Math.floor(86400 * fractional_day);
-
-  const seconds = total_seconds % 60;
-  total_seconds -= seconds;
-
-  const hours = Math.floor(total_seconds / (60 * 60));
-  const minutes = Math.floor(total_seconds / 60) % 60;
-
-  return new Date(
-    date_info.getFullYear(),
-    date_info.getMonth(),
-    date_info.getDate(),
-    hours,
-    minutes,
-    seconds
-  );
+  stats: DashboardStats | null;
 }
 
 export default function MonthlyAccidentTrendChart({
-  incidents,
+  stats,
 }: MonthlyAccidentTrendChartProps) {
   const [activeTab, setActiveTab] = useState<'accidents' | 'fatalities'>(
     'accidents'
   );
 
   const chartData = useMemo(() => {
-    const dataByMonth: {
-      month: number;
-      accidents: number;
-      fatalities: number;
-    }[] = Array.from({ length: 12 }, (_, i) => ({
-      month: i + 1,
-      accidents: 0,
-      fatalities: 0,
-    }));
-
-    incidents.forEach((incident) => {
-      let date: Date | null = null;
-      const dateTimeValue = incident.dateTime;
-
-      if (typeof dateTimeValue === 'number') {
-        date = excelSerialDateToJSDate(dateTimeValue);
-      } else if (typeof dateTimeValue === 'string' && dateTimeValue.length > 0) {
-        try {
-          date = new Date(
-            String(dateTimeValue).replace(/\./g, '-').replace(/-$/, '')
-          );
-        } catch (e) {
-          // Invalid date string format
-        }
-      }
-
-      if (!date || isNaN(date.getTime())) {
-        return;
-      }
-
-      const month = date.getMonth(); // 0-11
-      dataByMonth[month].accidents++;
-      dataByMonth[month].fatalities += incident.fatalities;
-    });
-
-    return dataByMonth.map((d) => ({
+    if (!stats) return [];
+    
+    return stats.monthlyTrend.map(d => ({
       ...d,
       name: `${d.month}월`,
     }));
-  }, [incidents]);
+  }, [stats]);
 
-  const maxAccidents = Math.max(...chartData.map((d) => d.accidents));
-  const maxFatalities = Math.max(...chartData.map((d) => d.fatalities));
+  const maxAccidents = useMemo(() => Math.max(...chartData.map((d) => d.accidents), 0), [chartData]);
+  const maxFatalities = useMemo(() => Math.max(...chartData.map((d) => d.fatalities), 0), [chartData]);
+
+  if (!stats) return null;
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col h-[350px]">
       <CardHeader className="flex flex-row items-center justify-between p-4 pb-2">
         <CardTitle>월별 사고 발생 추이</CardTitle>
         <div className="flex items-center gap-2 rounded-md bg-muted p-1 text-sm">
@@ -130,7 +71,7 @@ export default function MonthlyAccidentTrendChart({
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow p-2 pt-0">
+      <CardContent className="flex-grow p-2 pt-0 min-h-0">
         <ChartContainer
           config={{
             accidents: { label: '총 사고 건수', color: 'hsl(var(--primary))' },
@@ -138,42 +79,28 @@ export default function MonthlyAccidentTrendChart({
           }}
           className="h-full w-full"
         >
-          <ResponsiveContainer>
-            <ComposedChart data={chartData}>
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <XAxis
                 dataKey="name"
                 tickLine={false}
                 axisLine={true}
-                tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
+                tick={{ fill: 'hsl(var(--foreground))', fontSize: 10 }}
               />
               <YAxis
                 yAxisId="left"
                 orientation="left"
                 stroke="hsl(var(--foreground))"
-                tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
+                tick={{ fill: 'hsl(var(--foreground))', fontSize: 10 }}
                 tickFormatter={(value) => value.toLocaleString()}
-                label={{
-                  value: '총 사고 (건)',
-                  angle: -90,
-                  position: 'insideLeft',
-                  offset: 10,
-                  fill: 'hsl(var(--muted-foreground))',
-                }}
                 domain={[0, maxAccidents * 1.1]}
               />
               <YAxis
                 yAxisId="right"
                 orientation="right"
                 stroke="hsl(var(--foreground))"
-                tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
+                tick={{ fill: 'hsl(var(--foreground))', fontSize: 10 }}
                 tickFormatter={(value) => value.toLocaleString()}
-                label={{
-                  value: '사망자 (명)',
-                  angle: -90,
-                  position: 'insideRight',
-                  offset: 10,
-                  fill: 'hsl(var(--muted-foreground))',
-                }}
                 domain={[0, maxFatalities * 1.1]}
               />
               <Tooltip
@@ -199,8 +126,8 @@ export default function MonthlyAccidentTrendChart({
                 dataKey="fatalities"
                 stroke="hsl(var(--destructive))"
                 strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
+                dot={{ r: 3 }}
+                activeDot={{ r: 5 }}
                 name="사망자 수"
                 hide={activeTab === 'accidents'}
               />

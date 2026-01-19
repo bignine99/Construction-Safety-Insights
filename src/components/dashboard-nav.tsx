@@ -3,13 +3,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BrainCircuit, FileDown, LayoutDashboard, Loader2 } from 'lucide-react';
+import { BrainCircuit, FileDown, LayoutDashboard, Loader2, Sparkles } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 export function DashboardNav() {
   const pathname = usePathname();
@@ -30,16 +31,13 @@ export function DashboardNav() {
     setIsDownloading(true);
 
     try {
-      // 캡처 전 스크롤을 최상단으로 이동하여 전체 페이지가 보이도록 함
       window.scrollTo(0, 0);
-      // 약간의 지연을 주어 렌더링 시간을 확보
       await new Promise(resolve => setTimeout(resolve, 100));
 
       const canvas = await html2canvas(content, {
-        scale: 2, // 해상도를 높여 품질 개선
-        useCORS: true, // CORS 이미지 처리를 위함
+        scale: 2,
+        useCORS: true,
         onclone: (document) => {
-          // re-charts의 일부 스타일이 복제된 문서에 제대로 적용되지 않는 문제를 해결
           const style = document.createElement('style');
           style.innerHTML = `
             .recharts-surface {
@@ -79,7 +77,12 @@ export function DashboardNav() {
         heightLeft -= pdfHeight;
       }
 
-      pdf.save('analysis-report.pdf');
+      pdf.save('safety-analysis-report.pdf');
+      
+      toast({
+        title: '다운로드 완료',
+        description: '분석 보고서가 성공적으로 생성되었습니다.',
+      });
     } catch (error) {
       console.error('PDF 생성 중 오류 발생:', error);
       toast({
@@ -92,41 +95,58 @@ export function DashboardNav() {
     }
   };
 
+  const NavItem = ({ href, icon: Icon, label, isActive }: any) => (
+    <Button
+      asChild
+      variant="ghost"
+      className={cn(
+        "relative h-12 flex-1 min-w-[180px] rounded-xl font-bold transition-all duration-300",
+        isActive 
+          ? "bg-white text-indigo-600 shadow-sm border border-slate-100 ring-1 ring-slate-100" 
+          : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+      )}
+    >
+      <Link href={href} className="flex items-center justify-center gap-2">
+        <Icon className={cn("w-4 h-4", isActive ? "text-indigo-600" : "text-slate-400")} />
+        <span className="text-sm">{label}</span>
+        {isActive && (
+          <span className="absolute bottom-1 w-1 h-1 rounded-full bg-indigo-600" />
+        )}
+      </Link>
+    </Button>
+  );
+
   return (
-    <div className="flex flex-wrap gap-2 rounded-lg bg-muted/50 p-1">
+    <div className="flex flex-wrap items-center gap-3 p-1.5 rounded-2xl bg-slate-100/50 border border-slate-200/60 backdrop-blur-sm">
+      <NavItem 
+        href="/" 
+        icon={LayoutDashboard} 
+        label="분석 대시보드" 
+        isActive={pathname === '/'} 
+      />
+      <NavItem 
+        href="/analysis" 
+        icon={BrainCircuit} 
+        label="지능형 AI 분석" 
+        isActive={pathname === '/analysis'} 
+      />
       <Button
-        asChild
-        variant={pathname === '/' ? 'default' : 'outline'}
-        className="flex-1 justify-center min-w-[200px]"
-      >
-        <Link href="/">
-          <LayoutDashboard />
-          안전사고 분석 대시보드
-        </Link>
-      </Button>
-      <Button
-        asChild
-        variant={pathname === '/analysis' ? 'default' : 'outline'}
-        className="flex-1 justify-center min-w-[200px]"
-      >
-        <Link href="/analysis">
-          <BrainCircuit />
-          AI 기반 데이터 분석
-        </Link>
-      </Button>
-      <Button
-        variant="outline"
+        variant="ghost"
         onClick={handlePdfDownload}
-        className="flex-1 justify-center min-w-[200px]"
         disabled={isDownloading}
+        className="h-12 flex-1 min-w-[180px] rounded-xl font-bold text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all border border-transparent hover:border-emerald-100"
       >
         {isDownloading ? (
-          <Loader2 className="animate-spin" />
+          <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
         ) : (
-          <FileDown />
+          <FileDown className="w-4 h-4 text-slate-400 group-hover:text-emerald-600" />
         )}
-        {isDownloading ? '다운로드 중...' : '분석결과 PDF 다운로드'}
+        <span className="text-sm ml-2">{isDownloading ? '생성 중...' : '리포트 내보내기'}</span>
       </Button>
+      <div className="hidden xl:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-xl shadow-lg shadow-indigo-200/50 animate-pulse-glow">
+        <Sparkles className="w-3 h-3 text-white animate-float" />
+        <span className="text-[10px] font-black text-white uppercase tracking-widest animate-text-glow">Premium AI Active</span>
+      </div>
     </div>
   );
 }

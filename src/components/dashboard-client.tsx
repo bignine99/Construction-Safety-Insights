@@ -2,9 +2,9 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import type { Incident } from '@/lib/types';
+import type { DashboardStats } from '@/lib/types';
 import type { IncidentFilters } from '@/services/incident.service';
-import { getIncidents } from '@/app/actions'; // Import from actions
+import { getDashboardStats, getFilterOptions } from '@/app/actions';
 import FilterSidebar from '@/components/filter-sidebar';
 import DashboardMetrics from '@/components/dashboard-metrics';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
@@ -20,6 +20,7 @@ import RiskRatioChart from './risk-ratio-chart';
 import { DashboardNav } from './dashboard-nav';
 import MonthlyAccidentTrendChart from './monthly-accident-trend-chart';
 import { Skeleton } from './ui/skeleton';
+import RecentSolutions from './recent-solutions';
 
 const constructionTypeMap: Record<string, string[]> = {
   건축: [
@@ -52,57 +53,62 @@ function FullPageLoadingSkeleton() {
 }
 
 export default function DashboardClient() {
-  const [allIncidents, setAllIncidents] = useState<Incident[]>([]);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [filterOptions, setFilterOptions] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
+  
   const [filters, setFilters] = useState<IncidentFilters>({
     projectOwner: [], projectType: [], constructionTypeMain: [],
     constructionTypeSub: [], objectMain: [], causeMain: [], resultMain: [],
   });
 
+  // 모든 데이터 초기 로드 (옵션 + 통계)
   useEffect(() => {
-    async function loadData() {
+    async function loadInitialData() {
       setIsLoading(true);
-      const incidents = await getIncidents();
-      setAllIncidents(incidents);
-      setIsLoading(false);
+      setIsStatsLoading(true);
+      try {
+        // 필터 옵션과 초기 통계를 병렬로 로드
+        const [options, initialStats] = await Promise.all([
+          getFilterOptions(),
+          getDashboardStats(filters)
+        ]);
+        setFilterOptions(options);
+        setStats(initialStats);
+      } catch (error) {
+        console.error('Failed to load initial data:', error);
+      } finally {
+        setIsLoading(false);
+        setIsStatsLoading(false);
+      }
     }
-    loadData();
-  }, []);
+    loadInitialData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 마운트 시 최초 1회만 실행
 
-  const uniqueValues = useMemo(() => {
-    if (isLoading) {
-      return {
-        uniqueProjectOwners: [], uniqueProjectTypes: [], uniqueConstructionTypeMains: [],
-        uniqueConstructionTypeSubs: [], uniqueObjectMains: [], uniqueCauseMains: [], uniqueResultMains: []
-      };
+  // 필터 변경 시 통계만 업데이트
+  useEffect(() => {
+    // 최초 마운트 시에는 위 useEffect에서 처리하므로 스킵
+    if (isLoading) return;
+
+    async function updateStats() {
+      setIsStatsLoading(true);
+      try {
+        const newStats = await getDashboardStats(filters);
+        setStats(newStats);
+      } catch (error) {
+        console.error('Failed to update stats:', error);
+      } finally {
+        setIsStatsLoading(false);
+      }
     }
-    return {
-      uniqueProjectOwners: [...new Set(allIncidents.map((i) => i.projectOwner).filter(Boolean))],
-      uniqueProjectTypes: [...new Set(allIncidents.map((i) => i.projectType).filter(Boolean))],
-      uniqueConstructionTypeMains: [...new Set(allIncidents.map((i) => i.constructionTypeMain).filter(Boolean))],
-      uniqueConstructionTypeSubs: [...new Set(allIncidents.map((i) => i.constructionTypeSub).filter(Boolean))],
-      uniqueObjectMains: [...new Set(allIncidents.map((i) => i.objectMain).filter(Boolean))],
-      uniqueCauseMains: [...new Set(allIncidents.map((i) => i.causeMain).filter(Boolean))],
-      uniqueResultMains: [...new Set(allIncidents.map((i) => i.resultMain).filter(Boolean))],
-    };
-  }, [isLoading, allIncidents]);
-
-  const filteredIncidents = useMemo(() => {
-    return allIncidents.filter(incident => {
-      if (filters.projectOwner?.length && !filters.projectOwner.includes(incident.projectOwner)) return false;
-      if (filters.projectType?.length && !filters.projectType.includes(incident.projectType)) return false;
-      if (filters.constructionTypeMain?.length && !filters.constructionTypeMain.includes(incident.constructionTypeMain)) return false;
-      if (filters.constructionTypeSub?.length && !filters.constructionTypeSub.includes(incident.constructionTypeSub)) return false;
-      if (filters.objectMain?.length && !filters.objectMain.includes(incident.objectMain)) return false;
-      if (filters.causeMain?.length && !filters.causeMain.includes(incident.causeMain)) return false;
-      if (filters.resultMain?.length && !filters.resultMain.includes(incident.resultMain)) return false;
-      return true;
-    });
-  }, [filters, allIncidents]);
+    updateStats();
+  }, [filters]);
 
   const constructionTypeSubOptions = useMemo(() => {
     if (!filters.constructionTypeMain || filters.constructionTypeMain.length === 0) {
-      return uniqueValues.uniqueConstructionTypeSubs;
+      return filterOptions?.constructionTypeSubs || [];
     }
     const options = new Set<string>();
     filters.constructionTypeMain.forEach(mainType => {
@@ -110,54 +116,112 @@ export default function DashboardClient() {
       subs.forEach(sub => options.add(sub));
     });
     return Array.from(options);
-  }, [filters.constructionTypeMain, uniqueValues.uniqueConstructionTypeSubs]);
+  }, [filters.constructionTypeMain, filterOptions]);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <FullPageLoadingSkeleton />
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar className="border-r border-slate-200 shadow-none">
         <FilterSidebar
           filters={filters}
           onFilterChange={setFilters}
-          projectOwners={uniqueValues.uniqueProjectOwners}
-          projectTypes={uniqueValues.uniqueProjectTypes}
-          constructionTypeMains={uniqueValues.uniqueConstructionTypeMains}
-          constructionTypeSubs={uniqueValues.uniqueConstructionTypeSubs}
-          objectMains={uniqueValues.uniqueObjectMains}
-          causeMains={uniqueValues.uniqueCauseMains}
-          resultMains={uniqueValues.uniqueResultMains}
+          projectOwners={filterOptions?.projectOwners || []}
+          projectTypes={filterOptions?.projectTypes || []}
+          constructionTypeMains={filterOptions?.constructionTypeMains || []}
+          constructionTypeSubs={filterOptions?.constructionTypeSubs || []}
+          objectMains={filterOptions?.objectMains || []}
+          causeMains={filterOptions?.causeMains || []}
+          resultMains={filterOptions?.resultMains || []}
           constructionTypeSubOptions={constructionTypeSubOptions}
-          disabled={isLoading}
+          disabled={isStatsLoading}
         />
       </Sidebar>
-      <SidebarInset>
+      <SidebarInset className="bg-transparent mesh-bg">
         <div className="flex h-full flex-col">
-          <div className="sticky top-0 z-10 flex flex-col gap-6 bg-background p-6">
-            <PageHeader
-              title="안전사고 분석 대시보드"
-              subtitle="WBS-RBS 기반 위험정보 분석 시스템"
-            />
-            <DashboardNav />
-          </div>
-          {isLoading ? <FullPageLoadingSkeleton /> : (
-            <div id="page-content" className="flex flex-1 flex-col overflow-auto p-6 pt-2">
-              <DashboardMetrics incidents={filteredIncidents} />
-              <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <AnnualAccidentsChart incidents={filteredIncidents} />
-                <MonthlyAccidentTrendChart incidents={filteredIncidents} />
-                <ConstructionSubtypeTreemap incidents={filteredIncidents} />
-                <ObjectSubtypeBarChart incidents={filteredIncidents} />
-                <ObjectSubtypeCountChart incidents={filteredIncidents} />
-                <CauseSubtypeBarChart incidents={filteredIncidents} />
-                <ResultMainChart incidents={filteredIncidents} />
-                <CauseResultMatrix incidents={filteredIncidents} />
-                <RiskRatioChart
-                  incidents={filteredIncidents}
-                  constructionTypeMap={constructionTypeMap}
-                  activeFilters={filters.constructionTypeSub || []}
+          <header className="glass-header px-8 py-6 shadow-sm">
+            <div className="max-w-[1600px] mx-auto flex flex-col gap-6">
+              <div className="flex items-center justify-between">
+                <PageHeader
+                  title="안전사고 통합 분석 대시보드"
+                  subtitle="WBS-RBS 기반 위험정보 실시간 모니터링 시스템"
                 />
+                <div className="hidden lg:flex items-center gap-4 text-xs font-semibold">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-white/50 rounded-full border border-slate-200/60 text-slate-600 backdrop-blur-sm">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    지능형 RAG 분석 시스템 가동 중
+                  </div>
+                </div>
               </div>
+              <DashboardNav />
             </div>
-          )}
+          </header>
+          
+          <div id="page-content" className="flex-1 overflow-auto">
+            <div className="max-w-[1600px] mx-auto p-8 pt-6 space-y-8 animate-fade-in">
+              <RecentSolutions />
+              
+              {isStatsLoading && !stats ? (
+                <FullPageLoadingSkeleton />
+              ) : (
+                <>
+                  <section className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                    <div className="flex items-center gap-2 mb-6">
+                      <div className="w-1 h-5 bg-indigo-600 rounded-full animate-pulse" />
+                      <h2 className="text-lg font-bold text-slate-800 tracking-tight">핵심 성과 지표 (KPI)</h2>
+                    </div>
+                    <DashboardMetrics stats={stats} />
+                  </section>
+
+                  <section className="space-y-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-5 bg-indigo-600 rounded-full animate-pulse" />
+                      <h2 className="text-lg font-bold text-slate-800 tracking-tight">유형별 추이 및 사고 분포</h2>
+                    </div>
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      <div className="pro-card border border-slate-200/60 rounded-2xl overflow-hidden shadow-sm animate-scale-in">
+                        <AnnualAccidentsChart stats={stats} />
+                      </div>
+                      <div className="pro-card border border-slate-200/60 rounded-2xl overflow-hidden shadow-sm animate-scale-in" style={{ animationDelay: '0.1s' }}>
+                        <MonthlyAccidentTrendChart stats={stats} />
+                      </div>
+                      <div className="pro-card border border-slate-200/60 rounded-2xl overflow-hidden shadow-sm animate-scale-in" style={{ animationDelay: '0.2s' }}>
+                        <ConstructionSubtypeTreemap stats={stats} />
+                      </div>
+                      <div className="pro-card border border-slate-200/60 rounded-2xl overflow-hidden shadow-sm animate-scale-in" style={{ animationDelay: '0.3s' }}>
+                        <ObjectSubtypeBarChart stats={stats} />
+                      </div>
+                      <div className="pro-card border border-slate-200/60 rounded-2xl overflow-hidden shadow-sm animate-scale-in" style={{ animationDelay: '0.4s' }}>
+                        <ObjectSubtypeCountChart stats={stats} />
+                      </div>
+                      <div className="pro-card border border-slate-200/60 rounded-2xl overflow-hidden shadow-sm animate-scale-in" style={{ animationDelay: '0.5s' }}>
+                        <CauseSubtypeBarChart stats={stats} />
+                      </div>
+                      <div className="pro-card border border-slate-200/60 rounded-2xl overflow-hidden shadow-sm animate-scale-in" style={{ animationDelay: '0.6s' }}>
+                        <ResultMainChart stats={stats} />
+                      </div>
+                      <div className="pro-card border border-slate-200/60 rounded-2xl overflow-hidden shadow-sm animate-scale-in" style={{ animationDelay: '0.7s' }}>
+                        <CauseResultMatrix stats={stats} />
+                      </div>
+                      <div className="pro-card border border-slate-200/60 rounded-2xl overflow-hidden shadow-sm animate-scale-in" style={{ animationDelay: '0.8s' }}>
+                        <RiskRatioChart
+                          stats={stats}
+                          constructionTypeMap={constructionTypeMap}
+                          activeFilters={filters.constructionTypeSub || []}
+                        />
+                      </div>
+                    </div>
+                  </section>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>

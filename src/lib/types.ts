@@ -28,7 +28,32 @@ export interface AiAnalysis {
   safetyInstructions: string[];
 }
 
+export interface SavedSolution extends AiAnalysis {
+  id?: string;
+  createdAt: number;
+  incidentCount: number;
+  title?: string;
+}
+
 export interface VisualAnalysisInput {
   prompt: string;
   photoDataUri: string | null;
+}
+
+export interface DashboardStats {
+  totalAccidents: number;
+  totalFatalities: number;
+  totalInjuries: number;
+  averageCostDamage: number;
+  averageRiskIndex: number;
+  annualData: { year: string; count: number }[];
+  monthlyTrend: { month: number; accidents: number; fatalities: number }[];
+  constructionTypeData: { name: string; value: number }[];
+  objectSubtypeData: { name: string; count: number }[];
+  causeSubtypeData: { name: string; count: number }[];
+  resultMainData: { name: string; count: number }[];
+  // 추가된 필드들
+  workTypeRiskData: { name: string; riskIndex: number }[];
+  causeResultMatrix: { cause: string; result: string; count: number }[];
+  constructionSubtypeCount: Record<string, number>;
 }

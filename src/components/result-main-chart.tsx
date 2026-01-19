@@ -9,23 +9,23 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts';
-import type { Incident } from '@/lib/types';
+import type { DashboardStats } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
 interface ResultMainChartProps {
-  incidents: Incident[];
+  stats: DashboardStats | null;
 }
 
-export default function ResultMainChart({ incidents }: ResultMainChartProps) {
+export default function ResultMainChart({ stats }: ResultMainChartProps) {
   const chartData = useMemo(() => {
-    const data = incidents.reduce((acc, incident) => {
-      const result = incident.resultMain || '기타';
-      acc[result] = (acc[result] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    if (!stats) return [];
+    
+    const dataMap: Record<string, number> = {};
+    stats.resultMainData.forEach(item => {
+      dataMap[item.name] = item.count;
+    });
 
-    // Order from image, starting top and going clockwise
     const categories: {key: string, label: string}[] = [
       { key: '끼임', label: '끼임' },
       { key: '물체에맞음', label: '물체에맞음' },
@@ -38,9 +38,11 @@ export default function ResultMainChart({ incidents }: ResultMainChartProps) {
     
     return categories.map(category => ({
       name: category.label,
-      '사고 건수': data[category.key] || 0,
+      '사고 건수': dataMap[category.key] || 0,
     }));
-  }, [incidents]);
+  }, [stats]);
+
+  if (!stats) return null;
 
   return (
     <Card className="flex flex-col">

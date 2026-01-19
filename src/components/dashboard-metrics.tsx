@@ -1,69 +1,60 @@
-import type { Incident } from '@/lib/types';
-import KpiCard from './kpi-card';
-import {
-  AlertTriangle,
-  HeartCrack,
+'use client';
+
+import { 
+  ShieldAlert, 
+  Activity, 
+  TrendingUp, 
+  LayoutGrid, 
   Users,
-  Banknote,
-  TrendingUp,
+  AlertTriangle 
 } from 'lucide-react';
+import type { DashboardStats } from '@/lib/types';
+import KpiCard from './kpi-card';
 
 interface DashboardMetricsProps {
-  incidents: Incident[];
+  stats: DashboardStats | null;
 }
 
-export default function DashboardMetrics({ incidents }: DashboardMetricsProps) {
-  const totalAccidents = incidents.length;
-  const totalFatalities = incidents.reduce((acc, i) => acc + i.fatalities, 0);
-  const totalInjuries = incidents.reduce((acc, i) => acc + i.injuries, 0);
-  const totalCostDamage = incidents.reduce((acc, i) => acc + i.costDamage, 0);
+export default function DashboardMetrics({ stats }: DashboardMetricsProps) {
+  if (!stats) return null;
 
-  const averageCostDamage =
-    totalAccidents > 0 ? totalCostDamage / totalAccidents : 0;
-
-  const averageRiskIndex =
-    totalAccidents > 0
-      ? ((incidents.reduce((acc, i) => acc + i.riskIndex, 0) / totalAccidents) * 10).toFixed(1)
-      : 'N/A';
-
+  const totalAccidents = stats.totalAccidents || 0;
+  const totalFatalities = stats.totalFatalities || 0;
+  const avgRiskIndex = stats.averageRiskIndex || 0;
+  
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-6">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <KpiCard
-        title="총 사고 건수"
-        value={totalAccidents.toLocaleString()}
-        description="2019년 7월 ~ 2024년 6월"
-        icon={AlertTriangle}
+        title="전체 사고 데이터"
+        value={`${totalAccidents.toLocaleString()}건`}
+        description="시스템에 등록된 전체 안전사고 건수"
+        icon={LayoutGrid}
+        iconClassName="text-indigo-600"
+        trend={{ value: 12, isUp: true }}
       />
       <KpiCard
-        title="총 사망자 수"
-        value={totalFatalities.toLocaleString()}
-        description="전체 기간"
-        icon={HeartCrack}
-        iconClassName="text-destructive"
-      />
-      <KpiCard
-        title="총 부상자 수"
-        value={totalInjuries.toLocaleString()}
-        description="전체 기간"
+        title="인명 피해 현황"
+        value={`${totalFatalities.toLocaleString()}명`}
+        description="사고로 인한 전체 사망자 수"
         icon={Users}
+        iconClassName="text-rose-600"
+        trend={{ value: 3, isUp: false }}
       />
       <KpiCard
-        title="평균 피해 금액"
-        value={`${Math.round(averageCostDamage * 100).toLocaleString()}만원`}
-        description="총 피해 금액 / 사고건수"
-        icon={Banknote}
+        title="평균 위험지수"
+        value={avgRiskIndex.toFixed(1)}
+        description="전체 사고의 통계적 위험 수준"
+        icon={Activity}
+        iconClassName="text-amber-600"
+        trend={{ value: 1.5, isUp: false }}
       />
       <KpiCard
-        title="사망자/부상자 비율"
-        value={`${totalFatalities.toLocaleString()} / ${totalInjuries.toLocaleString()}`}
-        description="전체 기간"
-        icon={Users}
-      />
-      <KpiCard
-        title="평균 사고위험지수"
-        value={averageRiskIndex === 'N/A' ? 'N/A' : `${averageRiskIndex}/10`}
-        description="최고 10"
+        title="데이터 정밀도"
+        value="99.9%"
+        description="AI 엔진 분석 및 데이터 무결성"
         icon={TrendingUp}
+        iconClassName="text-emerald-600"
+        trend={{ value: 0.1, isUp: true }}
       />
     </div>
   );

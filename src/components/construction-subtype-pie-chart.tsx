@@ -3,12 +3,12 @@
 
 import { useMemo } from 'react';
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts';
-import type { Incident } from '@/lib/types';
+import type { DashboardStats } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
 interface ConstructionSubtypeTreemapProps {
-  incidents: Incident[];
+  stats: DashboardStats | null;
 }
 
 const COLORS = [
@@ -21,7 +21,7 @@ const COLORS = [
 
 // Custom content component to render inside each treemap rectangle
 const CustomizedContent = (props: any) => {
-  const { root, depth, x, y, width, height, index, name, value } = props;
+  const { depth, x, y, width, height, index, name, value } = props;
 
   // Don't render labels on the root node or if the box is too small
   if (depth < 1 || width < 30 || height < 20) {
@@ -70,18 +70,13 @@ const CustomizedContent = (props: any) => {
 };
 
 
-export default function ConstructionSubtypeTreemap({ incidents }: ConstructionSubtypeTreemapProps) {
+export default function ConstructionSubtypeTreemap({ stats }: ConstructionSubtypeTreemapProps) {
   const chartData = useMemo(() => {
-    const data = incidents.reduce((acc, incident) => {
-      const subType = incident.constructionTypeSub || '기타';
-      acc[subType] = (acc[subType] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    if (!stats) return [];
+    return stats.constructionTypeData;
+  }, [stats]);
 
-    return Object.entries(data)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value);
-  }, [incidents]);
+  if (!stats) return null;
 
   return (
     <Card className="flex flex-col">
@@ -101,7 +96,7 @@ export default function ConstructionSubtypeTreemap({ incidents }: ConstructionSu
               >
                   <Tooltip 
                       content={<ChartTooltipContent 
-                          formatter={(value, name) => `${(value as number).toLocaleString()}건`}
+                          formatter={(value) => `${(value as number).toLocaleString()}건`}
                           labelFormatter={(label) => `중공종: ${label}`}
                           indicator="dot"
                       />} 
